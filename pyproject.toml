@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "chatbotkit"
+version = "0.0.1"
+description = "The fastest way to build advanced AI chat bots."
+authors = ["Petko D. Petkov <pdp@chatbotkit.com>"]
+license = "ISC"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.28.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
