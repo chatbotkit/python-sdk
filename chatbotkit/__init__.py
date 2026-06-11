@@ -1,3 +1,12 @@
-"""Main entrypoint into package."""
+from ._client import ChatBotKit
+from ._transport import APIError, Client, ClientOptions, Response
 
-__all__ = []
+__all__ = [
+    "APIError",
+    "ChatBotKit",
+    "Client",
+    "ClientOptions",
+    "Response",
+]
+
+__version__ = "0.1.0"
