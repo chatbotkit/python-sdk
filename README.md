@@ -41,6 +41,12 @@ This means you can focus on building great user experiences while ChatBotKit han
 pip install chatbotkit
 ```
 
+You can also install directly from GitHub:
+
+```bash
+pip install "chatbotkit @ git+https://github.com/chatbotkit/python-sdk.git"
+```
+
 Requires Python 3.10 or later. The SDK is fully async and built on
 [`httpx`](https://www.python-httpx.org/).
 
@@ -48,6 +54,12 @@ To use the optional agent helpers, install the agent extra:
 
 ```bash
 pip install "chatbotkit[agent]"
+```
+
+Or install the agent extra directly from GitHub:
+
+```bash
+pip install "chatbotkit[agent] @ git+https://github.com/chatbotkit/python-sdk.git"
 ```
 
 Then import from `chatbotkit.agent`:
