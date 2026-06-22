@@ -12,6 +12,7 @@ class SpaceClient:
     def __init__(self, client: Client) -> None:
         self._client = client
         self.storage = SpaceStorageClient(client)
+        self.site = SpaceSiteClient(client)
 
     def list(
         self,
@@ -88,4 +89,62 @@ class SpaceStorageClient:
             f"/api/v1/space/{space_id}/storage/delete/{path}",
             record=request or {},
             parse=types.SpaceStoragePathDeleteResponse.from_dict,
+        )
+
+
+class SpaceSiteClient:
+    def __init__(self, client: Client) -> None:
+        self._client = client
+
+    def list(
+        self,
+        space_id: str,
+        request: types.SpaceSiteListParams | Request | None = None,
+    ) -> Response[types.SpaceSiteListResponse, types.SpaceSiteListStreamItem]:
+        return self._client.client_fetch(
+            f"/api/v1/space/{space_id}/site/list",
+            query=request,
+            parse=types.SpaceSiteListResponse.from_dict,
+            stream_parse=types.SpaceSiteListStreamItem.from_dict,
+        )
+
+    def fetch(self, space_id: str, site_id: str) -> Response[types.SpaceSiteFetchResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/space/{space_id}/site/{site_id}/fetch",
+            parse=types.SpaceSiteFetchResponse.from_dict,
+        )
+
+    def create(
+        self,
+        space_id: str,
+        request: types.SpaceSiteCreateRequest | Request,
+    ) -> Response[types.SpaceSiteCreateResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/space/{space_id}/site/create",
+            record=request,
+            parse=types.SpaceSiteCreateResponse.from_dict,
+        )
+
+    def update(
+        self,
+        space_id: str,
+        site_id: str,
+        request: types.SpaceSiteUpdateRequest | Request,
+    ) -> Response[types.SpaceSiteUpdateResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/space/{space_id}/site/{site_id}/update",
+            record=request,
+            parse=types.SpaceSiteUpdateResponse.from_dict,
+        )
+
+    def delete(
+        self,
+        space_id: str,
+        site_id: str,
+        request: Request | None = None,
+    ) -> Response[types.SpaceSiteDeleteResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/space/{space_id}/site/{site_id}/delete",
+            record=request or {},
+            parse=types.SpaceSiteDeleteResponse.from_dict,
         )

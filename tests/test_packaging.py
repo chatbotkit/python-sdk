@@ -51,6 +51,12 @@ async def test_client_public_surface_imports_and_initializes():
         ]:
             assert hasattr(cbk, name)
 
+        # nested sub-clients
+        assert hasattr(cbk.integration, "skill_server")
+        assert hasattr(cbk.integration, "mcp_server")
+        assert hasattr(cbk.space, "site")
+        assert hasattr(cbk.space, "storage")
+
 
 def test_package_and_examples_compile():
     paths = [
@@ -110,3 +116,16 @@ def test_pyproject_extras_are_publish_ready():
     assert "python-dotenv>=1.0" in extras["examples"]
     assert "build>=1.2" in extras["dev"]
     assert "twine>=5" in extras["dev"]
+
+
+def test_version_is_consistent_across_sources():
+    import chatbotkit
+
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pyproject_version = pyproject["project"]["version"]
+
+    assert chatbotkit.__version__ == pyproject_version, (
+        "pyproject.toml version "
+        f"({pyproject_version}) and chatbotkit.__version__ "
+        f"({chatbotkit.__version__}) must match"
+    )
