@@ -1,0 +1,82 @@
+# Release workflow for the python-sdk.
+#
+# Triggered by tag-release.yml (workflow_dispatch at the new tag) or by a
+# manually pushed `v*` tag. Builds the sdist/wheel, publishes to PyPI (only if
+# a PYPI_API_TOKEN secret is configured), and creates a GitHub Release whose
+# body is the matching section from CHANGELOG.md with auto-generated commit
+# notes appended.
+#
+# To enable PyPI publishing, add a `PYPI_API_TOKEN` secret (a PyPI API token)
+# to this repository. Without it, the build still runs and the GitHub Release is
+# still created; only the upload step is skipped.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+          python -m build
+          twine check dist/*
+
+      - name: Detect PyPI token
+        id: token
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -n "$PYPI_API_TOKEN" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "PYPI_API_TOKEN not set - skipping PyPI upload." >&2
+          fi
+
+      - name: Publish to PyPI
+        if: steps.token.outputs.present == 'true'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload --non-interactive dist/*
+
+      - name: Extract changelog section for this version
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -f CHANGELOG.md ]; then
+            awk -v ver="$VERSION" '
+              $0 ~ ("^## \\[" ver "\\]") { capture = 1; next }
+              capture && /^## \[/ { exit }
+              capture { print }
+            ' CHANGELOG.md > release-notes.md
+          fi
+          if [ ! -s release-notes.md ]; then
+            echo "Release v${VERSION}. See the full changelog in CHANGELOG.md." > release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          generate_release_notes: true

@@ -25,6 +25,7 @@ class IntegrationClient:
         self.twilio = TwilioClient(client)
         self.email = EmailClient(client)
         self.mcp_server = McpServerClient(client)
+        self.skill_server = SkillServerClient(client)
         self.microsoft_teams = MicrosoftTeamsClient(client)
         self.google_chat = GoogleChatClient(client)
         self.trigger = TriggerClient(client)
@@ -992,6 +993,60 @@ class McpServerClient:
             f"/api/v1/integration/mcpserver/{integration_id}/delete",
             record=request or {},
             parse=types.IntegrationMCPServerDeleteResponse.from_dict,
+        )
+
+
+class SkillServerClient:
+    def __init__(self, client: Client) -> None:
+        self._client = client
+
+    def list(
+        self,
+        request: types.SkillServerIntegrationListParams | Request | None = None,
+    ) -> Response[types.SkillServerIntegrationListResponse, types.SkillServerIntegrationListStreamItem]:
+        return self._client.client_fetch(
+            "/api/v1/integration/skillserver/list",
+            query=request,
+            parse=types.SkillServerIntegrationListResponse.from_dict,
+            stream_parse=types.SkillServerIntegrationListStreamItem.from_dict,
+        )
+
+    def fetch(self, integration_id: str) -> Response[types.SkillServerIntegrationFetchResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/integration/skillserver/{integration_id}/fetch",
+            parse=types.SkillServerIntegrationFetchResponse.from_dict,
+        )
+
+    def create(
+        self,
+        request: types.SkillServerIntegrationCreateRequest | Request,
+    ) -> Response[types.SkillServerIntegrationCreateResponse, Any]:
+        return self._client.client_fetch(
+            "/api/v1/integration/skillserver/create",
+            record=request,
+            parse=types.SkillServerIntegrationCreateResponse.from_dict,
+        )
+
+    def update(
+        self,
+        integration_id: str,
+        request: types.SkillServerIntegrationUpdateRequest | Request,
+    ) -> Response[types.SkillServerIntegrationUpdateResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/integration/skillserver/{integration_id}/update",
+            record=request,
+            parse=types.SkillServerIntegrationUpdateResponse.from_dict,
+        )
+
+    def delete(
+        self,
+        integration_id: str,
+        request: Request | None = None,
+    ) -> Response[types.SkillServerIntegrationDeleteResponse, Any]:
+        return self._client.client_fetch(
+            f"/api/v1/integration/skillserver/{integration_id}/delete",
+            record=request or {},
+            parse=types.SkillServerIntegrationDeleteResponse.from_dict,
         )
 
 
