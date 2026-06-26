@@ -4,6 +4,15 @@ All notable changes to the ChatBotKit Python SDK are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-26
+
+### Added
+
+- `state` lifecycle field on the skillset and ability resources, backed by the
+  new `ResourceState` enum (`enabled` / `disabled`). A skillset or ability can
+  now be toggled off without deleting it. Available on the create, update, fetch,
+  and list types.
+
 ## [0.2.0] - 2026-06-22
 
 ### Added

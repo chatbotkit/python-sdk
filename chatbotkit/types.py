@@ -6937,6 +6937,59 @@ class ConversationAttachmentUploadResponse:
         return result
 
 
+class ConversationChannelSubscribeRequest:
+    history_length: Optional[int]
+    """Number of recent monitor events to replay before following
+    live, so a console opening mid-conversation can catch up.
+    """
+
+    def __init__(self, history_length: Optional[int]) -> None:
+        self.history_length = history_length
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ConversationChannelSubscribeRequest':
+        assert isinstance(obj, dict)
+        history_length = from_union([from_int, from_none], obj.get("historyLength"))
+        return ConversationChannelSubscribeRequest(history_length)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.history_length is not None:
+            result["historyLength"] = from_union([from_int, from_none], self.history_length)
+        return result
+
+
+class ConversationChannelSubscribeStreamItemType(Enum):
+    """The type of event"""
+
+    MESSAGE = "message"
+
+
+class ConversationChannelSubscribeStreamItem:
+    data: Dict[str, Any]
+    """The monitor event published to the channel"""
+
+    type: ConversationChannelSubscribeStreamItemType
+    """The type of event"""
+
+    def __init__(self, data: Dict[str, Any], type: ConversationChannelSubscribeStreamItemType) -> None:
+        self.data = data
+        self.type = type
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ConversationChannelSubscribeStreamItem':
+        assert isinstance(obj, dict)
+        data = from_dict(lambda x: x, obj.get("data"))
+        type = ConversationChannelSubscribeStreamItemType(obj.get("type"))
+        return ConversationChannelSubscribeStreamItem(data, type)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["data"] = from_dict(lambda x: x, self.data)
+        result["type"] = to_enum(ConversationChannelSubscribeStreamItemType, self.type)
+        return result
+
+
 class ConversationCompactParams:
     conversation_id: str
     """The ID of the conversation to compact"""
@@ -21472,6 +21525,509 @@ class IntegrationExtractListStreamItem:
         return result
 
 
+class GithubIntegrationDeleteParams:
+    github_integration_id: str
+    """The ID of the GitHub integration"""
+
+    def __init__(self, github_integration_id: str) -> None:
+        self.github_integration_id = github_integration_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationDeleteParams':
+        assert isinstance(obj, dict)
+        github_integration_id = from_str(obj.get("githubIntegrationId"))
+        return GithubIntegrationDeleteParams(github_integration_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["githubIntegrationId"] = from_str(self.github_integration_id)
+        return result
+
+
+class GithubIntegrationDeleteResponse:
+    id: str
+    """The ID of the deleted GitHub integration"""
+
+    def __init__(self, id: str) -> None:
+        self.id = id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationDeleteResponse':
+        assert isinstance(obj, dict)
+        id = from_str(obj.get("id"))
+        return GithubIntegrationDeleteResponse(id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["id"] = from_str(self.id)
+        return result
+
+
+class GithubIntegrationFetchParams:
+    github_integration_id: str
+    """The ID of the GitHub integration to retrieve"""
+
+    def __init__(self, github_integration_id: str) -> None:
+        self.github_integration_id = github_integration_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationFetchParams':
+        assert isinstance(obj, dict)
+        github_integration_id = from_str(obj.get("githubIntegrationId"))
+        return GithubIntegrationFetchParams(github_integration_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["githubIntegrationId"] = from_str(self.github_integration_id)
+        return result
+
+
+class GithubIntegrationFetchResponse:
+    """Blueprint properties"""
+
+    alias: Optional[str]
+    """The unique alias for the instance"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
+
+    bot_id: Optional[str]
+    """The ID of the bot this configuration is using"""
+
+    created_at: float
+    """The timestamp (ms) when the instance was created"""
+
+    description: Optional[str]
+    """The associated description"""
+
+    id: str
+    """The instance ID"""
+
+    meta: Optional[Dict[str, Any]]
+    """Meta data information"""
+
+    name: Optional[str]
+    """The associated name"""
+
+    updated_at: float
+    """The timestamp (ms) when the instance was updated"""
+
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], updated_at: float) -> None:
+        self.alias = alias
+        self.blueprint_id = blueprint_id
+        self.bot_id = bot_id
+        self.created_at = created_at
+        self.description = description
+        self.id = id
+        self.meta = meta
+        self.name = name
+        self.updated_at = updated_at
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationFetchResponse':
+        assert isinstance(obj, dict)
+        alias = from_union([from_str, from_none], obj.get("alias"))
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
+        bot_id = from_union([from_str, from_none], obj.get("botId"))
+        created_at = from_float(obj.get("createdAt"))
+        description = from_union([from_str, from_none], obj.get("description"))
+        id = from_str(obj.get("id"))
+        meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
+        name = from_union([from_str, from_none], obj.get("name"))
+        updated_at = from_float(obj.get("updatedAt"))
+        return GithubIntegrationFetchResponse(alias, blueprint_id, bot_id, created_at, description, id, meta, name, updated_at)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.alias is not None:
+            result["alias"] = from_union([from_str, from_none], self.alias)
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
+        if self.bot_id is not None:
+            result["botId"] = from_union([from_str, from_none], self.bot_id)
+        result["createdAt"] = to_float(self.created_at)
+        if self.description is not None:
+            result["description"] = from_union([from_str, from_none], self.description)
+        result["id"] = from_str(self.id)
+        if self.meta is not None:
+            result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
+        if self.name is not None:
+            result["name"] = from_union([from_str, from_none], self.name)
+        result["updatedAt"] = to_float(self.updated_at)
+        return result
+
+
+class GithubIntegrationSetupParams:
+    github_integration_id: str
+
+    def __init__(self, github_integration_id: str) -> None:
+        self.github_integration_id = github_integration_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationSetupParams':
+        assert isinstance(obj, dict)
+        github_integration_id = from_str(obj.get("githubIntegrationId"))
+        return GithubIntegrationSetupParams(github_integration_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["githubIntegrationId"] = from_str(self.github_integration_id)
+        return result
+
+
+class GithubIntegrationUpdateParams:
+    github_integration_id: str
+    """The ID of the GitHub integration"""
+
+    def __init__(self, github_integration_id: str) -> None:
+        self.github_integration_id = github_integration_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationUpdateParams':
+        assert isinstance(obj, dict)
+        github_integration_id = from_str(obj.get("githubIntegrationId"))
+        return GithubIntegrationUpdateParams(github_integration_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["githubIntegrationId"] = from_str(self.github_integration_id)
+        return result
+
+
+class GithubIntegrationUpdateRequest:
+    """A bot configuration that can be applied without a dedicated bot instance."""
+
+    alias: Optional[str]
+    """The unique alias for the instance"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
+
+    bot_id: Optional[str]
+    """The ID of the bot this configuration is using"""
+
+    description: Optional[str]
+    """The associated description"""
+
+    meta: Optional[Dict[str, Any]]
+    """Meta data information"""
+
+    name: Optional[str]
+    """The associated name"""
+
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], bot_id: Optional[str], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str]) -> None:
+        self.alias = alias
+        self.blueprint_id = blueprint_id
+        self.bot_id = bot_id
+        self.description = description
+        self.meta = meta
+        self.name = name
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationUpdateRequest':
+        assert isinstance(obj, dict)
+        alias = from_union([from_str, from_none], obj.get("alias"))
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
+        bot_id = from_union([from_str, from_none], obj.get("botId"))
+        description = from_union([from_str, from_none], obj.get("description"))
+        meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
+        name = from_union([from_str, from_none], obj.get("name"))
+        return GithubIntegrationUpdateRequest(alias, blueprint_id, bot_id, description, meta, name)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.alias is not None:
+            result["alias"] = from_union([from_str, from_none], self.alias)
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
+        if self.bot_id is not None:
+            result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.description is not None:
+            result["description"] = from_union([from_str, from_none], self.description)
+        if self.meta is not None:
+            result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
+        if self.name is not None:
+            result["name"] = from_union([from_str, from_none], self.name)
+        return result
+
+
+class GithubIntegrationUpdateResponse:
+    id: str
+    """The ID of the GitHub Integration"""
+
+    def __init__(self, id: str) -> None:
+        self.id = id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationUpdateResponse':
+        assert isinstance(obj, dict)
+        id = from_str(obj.get("id"))
+        return GithubIntegrationUpdateResponse(id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["id"] = from_str(self.id)
+        return result
+
+
+class GithubIntegrationCreateRequest:
+    """A bot configuration that can be applied without a dedicated bot instance."""
+
+    alias: Optional[str]
+    """The unique alias for the instance"""
+
+    app_id: Optional[str]
+    """This integration's GitHub App id (signs the App JWT)"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
+
+    bot_id: Optional[str]
+    """The ID of the bot this configuration is using"""
+
+    contact_collection: Optional[bool]
+    """Whether to collect contacts"""
+
+    description: Optional[str]
+    """The associated description"""
+
+    meta: Optional[Dict[str, Any]]
+    """Meta data information"""
+
+    name: Optional[str]
+    """The associated name"""
+
+    private_key: Optional[str]
+    """This integration's GitHub App private key (PEM)"""
+
+    session_duration: Optional[float]
+    """The session duration for the GitHub integration"""
+
+    webhook_secret: Optional[str]
+    """The GitHub App webhook secret used to validate x-hub-signature-256"""
+
+    def __init__(self, alias: Optional[str], app_id: Optional[str], blueprint_id: Optional[str], bot_id: Optional[str], contact_collection: Optional[bool], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], private_key: Optional[str], session_duration: Optional[float], webhook_secret: Optional[str]) -> None:
+        self.alias = alias
+        self.app_id = app_id
+        self.blueprint_id = blueprint_id
+        self.bot_id = bot_id
+        self.contact_collection = contact_collection
+        self.description = description
+        self.meta = meta
+        self.name = name
+        self.private_key = private_key
+        self.session_duration = session_duration
+        self.webhook_secret = webhook_secret
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationCreateRequest':
+        assert isinstance(obj, dict)
+        alias = from_union([from_str, from_none], obj.get("alias"))
+        app_id = from_union([from_str, from_none], obj.get("appId"))
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
+        bot_id = from_union([from_str, from_none], obj.get("botId"))
+        contact_collection = from_union([from_bool, from_none], obj.get("contactCollection"))
+        description = from_union([from_str, from_none], obj.get("description"))
+        meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
+        name = from_union([from_str, from_none], obj.get("name"))
+        private_key = from_union([from_str, from_none], obj.get("privateKey"))
+        session_duration = from_union([from_float, from_none], obj.get("sessionDuration"))
+        webhook_secret = from_union([from_str, from_none], obj.get("webhookSecret"))
+        return GithubIntegrationCreateRequest(alias, app_id, blueprint_id, bot_id, contact_collection, description, meta, name, private_key, session_duration, webhook_secret)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.alias is not None:
+            result["alias"] = from_union([from_str, from_none], self.alias)
+        if self.app_id is not None:
+            result["appId"] = from_union([from_str, from_none], self.app_id)
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
+        if self.bot_id is not None:
+            result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.contact_collection is not None:
+            result["contactCollection"] = from_union([from_bool, from_none], self.contact_collection)
+        if self.description is not None:
+            result["description"] = from_union([from_str, from_none], self.description)
+        if self.meta is not None:
+            result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
+        if self.name is not None:
+            result["name"] = from_union([from_str, from_none], self.name)
+        if self.private_key is not None:
+            result["privateKey"] = from_union([from_str, from_none], self.private_key)
+        if self.session_duration is not None:
+            result["sessionDuration"] = from_union([to_float, from_none], self.session_duration)
+        if self.webhook_secret is not None:
+            result["webhookSecret"] = from_union([from_str, from_none], self.webhook_secret)
+        return result
+
+
+class GithubIntegrationCreateResponse:
+    id: str
+    """The ID of the GitHub Integration"""
+
+    def __init__(self, id: str) -> None:
+        self.id = id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationCreateResponse':
+        assert isinstance(obj, dict)
+        id = from_str(obj.get("id"))
+        return GithubIntegrationCreateResponse(id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["id"] = from_str(self.id)
+        return result
+
+
+class GithubIntegrationListParamsOrder(Enum):
+    """The order of the paginated items"""
+
+    ASC = "asc"
+    DESC = "desc"
+
+
+class GithubIntegrationListParams:
+    cursor: Optional[str]
+    """The cursor to use for pagination"""
+
+    meta: Optional[Dict[str, str]]
+    """Key-value pairs to filter by metadata"""
+
+    order: Optional[GithubIntegrationListParamsOrder]
+    """The order of the paginated items"""
+
+    take: Optional[int]
+    """The number of items to retrieve"""
+
+    def __init__(self, cursor: Optional[str], meta: Optional[Dict[str, str]], order: Optional[GithubIntegrationListParamsOrder], take: Optional[int]) -> None:
+        self.cursor = cursor
+        self.meta = meta
+        self.order = order
+        self.take = take
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationListParams':
+        assert isinstance(obj, dict)
+        cursor = from_union([from_str, from_none], obj.get("cursor"))
+        meta = from_union([lambda x: from_dict(from_str, x), from_none], obj.get("meta"))
+        order = from_union([GithubIntegrationListParamsOrder, from_none], obj.get("order"))
+        take = from_union([from_int, from_none], obj.get("take"))
+        return GithubIntegrationListParams(cursor, meta, order, take)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.cursor is not None:
+            result["cursor"] = from_union([from_str, from_none], self.cursor)
+        if self.meta is not None:
+            result["meta"] = from_union([lambda x: from_dict(from_str, x), from_none], self.meta)
+        if self.order is not None:
+            result["order"] = from_union([lambda x: to_enum(GithubIntegrationListParamsOrder, x), from_none], self.order)
+        if self.take is not None:
+            result["take"] = from_union([from_int, from_none], self.take)
+        return result
+
+
+class GithubIntegrationListResponseItem:
+    """Blueprint properties"""
+
+    alias: Optional[str]
+    """The unique alias for the instance"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
+
+    bot_id: Optional[str]
+    """The ID of the bot this configuration is using"""
+
+    created_at: float
+    """The timestamp (ms) when the instance was created"""
+
+    description: Optional[str]
+    """The associated description"""
+
+    id: str
+    """The instance ID"""
+
+    meta: Optional[Dict[str, Any]]
+    """Meta data information"""
+
+    name: Optional[str]
+    """The associated name"""
+
+    updated_at: float
+    """The timestamp (ms) when the instance was updated"""
+
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], updated_at: float) -> None:
+        self.alias = alias
+        self.blueprint_id = blueprint_id
+        self.bot_id = bot_id
+        self.created_at = created_at
+        self.description = description
+        self.id = id
+        self.meta = meta
+        self.name = name
+        self.updated_at = updated_at
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationListResponseItem':
+        assert isinstance(obj, dict)
+        alias = from_union([from_str, from_none], obj.get("alias"))
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
+        bot_id = from_union([from_str, from_none], obj.get("botId"))
+        created_at = from_float(obj.get("createdAt"))
+        description = from_union([from_str, from_none], obj.get("description"))
+        id = from_str(obj.get("id"))
+        meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
+        name = from_union([from_str, from_none], obj.get("name"))
+        updated_at = from_float(obj.get("updatedAt"))
+        return GithubIntegrationListResponseItem(alias, blueprint_id, bot_id, created_at, description, id, meta, name, updated_at)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.alias is not None:
+            result["alias"] = from_union([from_str, from_none], self.alias)
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
+        if self.bot_id is not None:
+            result["botId"] = from_union([from_str, from_none], self.bot_id)
+        result["createdAt"] = to_float(self.created_at)
+        if self.description is not None:
+            result["description"] = from_union([from_str, from_none], self.description)
+        result["id"] = from_str(self.id)
+        if self.meta is not None:
+            result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
+        if self.name is not None:
+            result["name"] = from_union([from_str, from_none], self.name)
+        result["updatedAt"] = to_float(self.updated_at)
+        return result
+
+
+class GithubIntegrationListResponse:
+    cursor: str
+    """Cursor for fetching the next page"""
+
+    items: List[GithubIntegrationListResponseItem]
+
+    def __init__(self, cursor: str, items: List[GithubIntegrationListResponseItem]) -> None:
+        self.cursor = cursor
+        self.items = items
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'GithubIntegrationListResponse':
+        assert isinstance(obj, dict)
+        cursor = from_str(obj.get("cursor"))
+        items = from_list(GithubIntegrationListResponseItem.from_dict, obj.get("items"))
+        return GithubIntegrationListResponse(cursor, items)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["cursor"] = from_str(self.cursor)
+        result["items"] = from_list(lambda x: to_class(GithubIntegrationListResponseItem, x), self.items)
+        return result
+
+
 class GooglechatIntegrationDeleteParams:
     googlechat_integration_id: str
     """The ID of the Google Chat integration"""
@@ -35390,6 +35946,7 @@ class PartnerUserContextFetchResponse:
 
     blueprint_id: Optional[str]
     bot_id: Optional[str]
+    contact_id: Optional[str]
     created_at: float
     """The timestamp (ms) when the instance was created"""
 
@@ -35411,9 +35968,10 @@ class PartnerUserContextFetchResponse:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
+        self.contact_id = contact_id
         self.created_at = created_at
         self.dataset_id = dataset_id
         self.description = description
@@ -35429,6 +35987,7 @@ class PartnerUserContextFetchResponse:
         assert isinstance(obj, dict)
         blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
+        contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
         dataset_id = from_union([from_str, from_none], obj.get("datasetId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -35438,7 +35997,7 @@ class PartnerUserContextFetchResponse:
         payload = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("payload"))
         skillset_id = from_union([from_str, from_none], obj.get("skillsetId"))
         updated_at = from_float(obj.get("updatedAt"))
-        return PartnerUserContextFetchResponse(blueprint_id, bot_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
+        return PartnerUserContextFetchResponse(blueprint_id, bot_id, contact_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -35446,6 +36005,8 @@ class PartnerUserContextFetchResponse:
             result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.contact_id is not None:
+            result["contactId"] = from_union([from_str, from_none], self.contact_id)
         result["createdAt"] = to_float(self.created_at)
         if self.dataset_id is not None:
             result["datasetId"] = from_union([from_str, from_none], self.dataset_id)
@@ -35618,6 +36179,7 @@ class PartnerUserContextCreateResponse:
 
     blueprint_id: Optional[str]
     bot_id: Optional[str]
+    contact_id: Optional[str]
     created_at: float
     """The timestamp (ms) when the instance was created"""
 
@@ -35639,9 +36201,10 @@ class PartnerUserContextCreateResponse:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
+        self.contact_id = contact_id
         self.created_at = created_at
         self.dataset_id = dataset_id
         self.description = description
@@ -35657,6 +36220,7 @@ class PartnerUserContextCreateResponse:
         assert isinstance(obj, dict)
         blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
+        contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
         dataset_id = from_union([from_str, from_none], obj.get("datasetId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -35666,7 +36230,7 @@ class PartnerUserContextCreateResponse:
         payload = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("payload"))
         skillset_id = from_union([from_str, from_none], obj.get("skillsetId"))
         updated_at = from_float(obj.get("updatedAt"))
-        return PartnerUserContextCreateResponse(blueprint_id, bot_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
+        return PartnerUserContextCreateResponse(blueprint_id, bot_id, contact_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -35674,6 +36238,8 @@ class PartnerUserContextCreateResponse:
             result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.contact_id is not None:
+            result["contactId"] = from_union([from_str, from_none], self.contact_id)
         result["createdAt"] = to_float(self.created_at)
         if self.dataset_id is not None:
             result["datasetId"] = from_union([from_str, from_none], self.dataset_id)
@@ -35764,6 +36330,7 @@ class PartnerUserContextListResponseItem:
 
     blueprint_id: Optional[str]
     bot_id: Optional[str]
+    contact_id: Optional[str]
     created_at: float
     """The timestamp (ms) when the instance was created"""
 
@@ -35785,9 +36352,10 @@ class PartnerUserContextListResponseItem:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
+        self.contact_id = contact_id
         self.created_at = created_at
         self.dataset_id = dataset_id
         self.description = description
@@ -35803,6 +36371,7 @@ class PartnerUserContextListResponseItem:
         assert isinstance(obj, dict)
         blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
+        contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
         dataset_id = from_union([from_str, from_none], obj.get("datasetId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -35812,7 +36381,7 @@ class PartnerUserContextListResponseItem:
         payload = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("payload"))
         skillset_id = from_union([from_str, from_none], obj.get("skillsetId"))
         updated_at = from_float(obj.get("updatedAt"))
-        return PartnerUserContextListResponseItem(blueprint_id, bot_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
+        return PartnerUserContextListResponseItem(blueprint_id, bot_id, contact_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -35820,6 +36389,8 @@ class PartnerUserContextListResponseItem:
             result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.contact_id is not None:
+            result["contactId"] = from_union([from_str, from_none], self.contact_id)
         result["createdAt"] = to_float(self.created_at)
         if self.dataset_id is not None:
             result["datasetId"] = from_union([from_str, from_none], self.dataset_id)
@@ -35867,6 +36438,7 @@ class PartnerUserContextListStreamItemData:
 
     blueprint_id: Optional[str]
     bot_id: Optional[str]
+    contact_id: Optional[str]
     created_at: float
     """The timestamp (ms) when the instance was created"""
 
@@ -35888,9 +36460,10 @@ class PartnerUserContextListStreamItemData:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, dataset_id: Optional[str], description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], payload: Optional[Dict[str, Any]], skillset_id: Optional[str], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
+        self.contact_id = contact_id
         self.created_at = created_at
         self.dataset_id = dataset_id
         self.description = description
@@ -35906,6 +36479,7 @@ class PartnerUserContextListStreamItemData:
         assert isinstance(obj, dict)
         blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
+        contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
         dataset_id = from_union([from_str, from_none], obj.get("datasetId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -35915,7 +36489,7 @@ class PartnerUserContextListStreamItemData:
         payload = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("payload"))
         skillset_id = from_union([from_str, from_none], obj.get("skillsetId"))
         updated_at = from_float(obj.get("updatedAt"))
-        return PartnerUserContextListStreamItemData(blueprint_id, bot_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
+        return PartnerUserContextListStreamItemData(blueprint_id, bot_id, contact_id, created_at, dataset_id, description, id, meta, name, payload, skillset_id, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -35923,6 +36497,8 @@ class PartnerUserContextListStreamItemData:
             result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
+        if self.contact_id is not None:
+            result["contactId"] = from_union([from_str, from_none], self.contact_id)
         result["createdAt"] = to_float(self.created_at)
         if self.dataset_id is not None:
             result["datasetId"] = from_union([from_str, from_none], self.dataset_id)
@@ -44531,6 +45107,13 @@ class SkillsetAbilityFetchParams:
         return result
 
 
+class SkillsetAbilityFetchResponseState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+
+
 class SkillsetAbilityFetchResponse:
     """Blueprint properties"""
 
@@ -44567,10 +45150,13 @@ class SkillsetAbilityFetchResponse:
     space_id: Optional[str]
     """The ID of the space associated with the ability"""
 
+    state: Optional[SkillsetAbilityFetchResponseState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], state: Optional[SkillsetAbilityFetchResponseState], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.created_at = created_at
@@ -44582,6 +45168,7 @@ class SkillsetAbilityFetchResponse:
         self.name = name
         self.secret_id = secret_id
         self.space_id = space_id
+        self.state = state
         self.updated_at = updated_at
 
     @staticmethod
@@ -44598,8 +45185,9 @@ class SkillsetAbilityFetchResponse:
         name = from_str(obj.get("name"))
         secret_id = from_union([from_str, from_none], obj.get("secretId"))
         space_id = from_union([from_str, from_none], obj.get("spaceId"))
+        state = from_union([SkillsetAbilityFetchResponseState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
-        return SkillsetAbilityFetchResponse(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, updated_at)
+        return SkillsetAbilityFetchResponse(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, state, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -44620,6 +45208,8 @@ class SkillsetAbilityFetchResponse:
             result["secretId"] = from_union([from_str, from_none], self.secret_id)
         if self.space_id is not None:
             result["spaceId"] = from_union([from_str, from_none], self.space_id)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetAbilityFetchResponseState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         return result
 
@@ -44644,6 +45234,13 @@ class SkillsetAbilityUpdateParams:
         result["abilityId"] = from_str(self.ability_id)
         result["skillsetId"] = from_str(self.skillset_id)
         return result
+
+
+class SkillsetAbilityUpdateRequestState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class SkillsetAbilityUpdateRequest:
@@ -44676,7 +45273,10 @@ class SkillsetAbilityUpdateRequest:
     space_id: Optional[str]
     """The ID of the space associated with the ability"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], description: Optional[str], file_id: Optional[str], instruction: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], secret_id: Optional[str], space_id: Optional[str]) -> None:
+    state: Optional[SkillsetAbilityUpdateRequestState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], description: Optional[str], file_id: Optional[str], instruction: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], secret_id: Optional[str], space_id: Optional[str], state: Optional[SkillsetAbilityUpdateRequestState]) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.description = description
@@ -44686,6 +45286,7 @@ class SkillsetAbilityUpdateRequest:
         self.name = name
         self.secret_id = secret_id
         self.space_id = space_id
+        self.state = state
 
     @staticmethod
     def from_dict(obj: Any) -> 'SkillsetAbilityUpdateRequest':
@@ -44699,7 +45300,8 @@ class SkillsetAbilityUpdateRequest:
         name = from_union([from_str, from_none], obj.get("name"))
         secret_id = from_union([from_str, from_none], obj.get("secretId"))
         space_id = from_union([from_str, from_none], obj.get("spaceId"))
-        return SkillsetAbilityUpdateRequest(blueprint_id, bot_id, description, file_id, instruction, meta, name, secret_id, space_id)
+        state = from_union([SkillsetAbilityUpdateRequestState, from_none], obj.get("state"))
+        return SkillsetAbilityUpdateRequest(blueprint_id, bot_id, description, file_id, instruction, meta, name, secret_id, space_id, state)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -44721,6 +45323,8 @@ class SkillsetAbilityUpdateRequest:
             result["secretId"] = from_union([from_str, from_none], self.secret_id)
         if self.space_id is not None:
             result["spaceId"] = from_union([from_str, from_none], self.space_id)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetAbilityUpdateRequestState, x), from_none], self.state)
         return result
 
 
@@ -44761,6 +45365,13 @@ class SkillsetAbilityCreateParams:
         return result
 
 
+class SkillsetAbilityCreateRequestState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+
+
 class SkillsetAbilityCreateRequest:
     """Blueprint properties"""
 
@@ -44791,7 +45402,10 @@ class SkillsetAbilityCreateRequest:
     space_id: Optional[str]
     """The ID of the space associated with the ability"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], description: Optional[str], file_id: Optional[str], instruction: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], secret_id: Optional[str], space_id: Optional[str]) -> None:
+    state: Optional[SkillsetAbilityCreateRequestState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], description: Optional[str], file_id: Optional[str], instruction: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], secret_id: Optional[str], space_id: Optional[str], state: Optional[SkillsetAbilityCreateRequestState]) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.description = description
@@ -44801,6 +45415,7 @@ class SkillsetAbilityCreateRequest:
         self.name = name
         self.secret_id = secret_id
         self.space_id = space_id
+        self.state = state
 
     @staticmethod
     def from_dict(obj: Any) -> 'SkillsetAbilityCreateRequest':
@@ -44814,7 +45429,8 @@ class SkillsetAbilityCreateRequest:
         name = from_union([from_str, from_none], obj.get("name"))
         secret_id = from_union([from_str, from_none], obj.get("secretId"))
         space_id = from_union([from_str, from_none], obj.get("spaceId"))
-        return SkillsetAbilityCreateRequest(blueprint_id, bot_id, description, file_id, instruction, meta, name, secret_id, space_id)
+        state = from_union([SkillsetAbilityCreateRequestState, from_none], obj.get("state"))
+        return SkillsetAbilityCreateRequest(blueprint_id, bot_id, description, file_id, instruction, meta, name, secret_id, space_id, state)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -44836,6 +45452,8 @@ class SkillsetAbilityCreateRequest:
             result["secretId"] = from_union([from_str, from_none], self.secret_id)
         if self.space_id is not None:
             result["spaceId"] = from_union([from_str, from_none], self.space_id)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetAbilityCreateRequestState, x), from_none], self.state)
         return result
 
 
@@ -45189,6 +45807,13 @@ class SkillsetAbilityListParams:
         return result
 
 
+class PurpleState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+
+
 class SkillsetAbilityListResponseItem:
     """Blueprint properties"""
 
@@ -45223,10 +45848,13 @@ class SkillsetAbilityListResponseItem:
     space_id: Optional[str]
     """The ID of the space associated with the ability"""
 
+    state: Optional[PurpleState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], state: Optional[PurpleState], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.created_at = created_at
@@ -45238,6 +45866,7 @@ class SkillsetAbilityListResponseItem:
         self.name = name
         self.secret_id = secret_id
         self.space_id = space_id
+        self.state = state
         self.updated_at = updated_at
 
     @staticmethod
@@ -45254,8 +45883,9 @@ class SkillsetAbilityListResponseItem:
         name = from_str(obj.get("name"))
         secret_id = from_union([from_str, from_none], obj.get("secretId"))
         space_id = from_union([from_str, from_none], obj.get("spaceId"))
+        state = from_union([PurpleState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
-        return SkillsetAbilityListResponseItem(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, updated_at)
+        return SkillsetAbilityListResponseItem(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, state, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45276,6 +45906,8 @@ class SkillsetAbilityListResponseItem:
             result["secretId"] = from_union([from_str, from_none], self.secret_id)
         if self.space_id is not None:
             result["spaceId"] = from_union([from_str, from_none], self.space_id)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(PurpleState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         return result
 
@@ -45302,6 +45934,13 @@ class SkillsetAbilityListResponse:
         result["cursor"] = from_str(self.cursor)
         result["items"] = from_list(lambda x: to_class(SkillsetAbilityListResponseItem, x), self.items)
         return result
+
+
+class FluffyState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class SkillsetAbilityListStreamItemData:
@@ -45338,10 +45977,13 @@ class SkillsetAbilityListStreamItemData:
     space_id: Optional[str]
     """The ID of the space associated with the ability"""
 
+    state: Optional[FluffyState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], created_at: float, description: str, file_id: Optional[str], id: str, instruction: str, meta: Optional[Dict[str, Any]], name: str, secret_id: Optional[str], space_id: Optional[str], state: Optional[FluffyState], updated_at: float) -> None:
         self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.created_at = created_at
@@ -45353,6 +45995,7 @@ class SkillsetAbilityListStreamItemData:
         self.name = name
         self.secret_id = secret_id
         self.space_id = space_id
+        self.state = state
         self.updated_at = updated_at
 
     @staticmethod
@@ -45369,8 +46012,9 @@ class SkillsetAbilityListStreamItemData:
         name = from_str(obj.get("name"))
         secret_id = from_union([from_str, from_none], obj.get("secretId"))
         space_id = from_union([from_str, from_none], obj.get("spaceId"))
+        state = from_union([FluffyState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
-        return SkillsetAbilityListStreamItemData(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, updated_at)
+        return SkillsetAbilityListStreamItemData(blueprint_id, bot_id, created_at, description, file_id, id, instruction, meta, name, secret_id, space_id, state, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45391,6 +46035,8 @@ class SkillsetAbilityListStreamItemData:
             result["secretId"] = from_union([from_str, from_none], self.secret_id)
         if self.space_id is not None:
             result["spaceId"] = from_union([from_str, from_none], self.space_id)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(FluffyState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         return result
 
@@ -45483,6 +46129,13 @@ class SkillsetFetchParams:
         return result
 
 
+class SkillsetFetchResponseState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+
+
 class SkillsetFetchResponseVisibility(Enum):
     """The skillset visibility"""
 
@@ -45515,13 +46168,16 @@ class SkillsetFetchResponse:
     name: Optional[str]
     """The associated name"""
 
+    state: Optional[SkillsetFetchResponseState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
     visibility: Optional[SkillsetFetchResponseVisibility]
     """The skillset visibility"""
 
-    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], updated_at: float, visibility: Optional[SkillsetFetchResponseVisibility]) -> None:
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], state: Optional[SkillsetFetchResponseState], updated_at: float, visibility: Optional[SkillsetFetchResponseVisibility]) -> None:
         self.alias = alias
         self.blueprint_id = blueprint_id
         self.created_at = created_at
@@ -45529,6 +46185,7 @@ class SkillsetFetchResponse:
         self.id = id
         self.meta = meta
         self.name = name
+        self.state = state
         self.updated_at = updated_at
         self.visibility = visibility
 
@@ -45542,9 +46199,10 @@ class SkillsetFetchResponse:
         id = from_str(obj.get("id"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
         name = from_union([from_str, from_none], obj.get("name"))
+        state = from_union([SkillsetFetchResponseState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
         visibility = from_union([SkillsetFetchResponseVisibility, from_none], obj.get("visibility"))
-        return SkillsetFetchResponse(alias, blueprint_id, created_at, description, id, meta, name, updated_at, visibility)
+        return SkillsetFetchResponse(alias, blueprint_id, created_at, description, id, meta, name, state, updated_at, visibility)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45560,6 +46218,8 @@ class SkillsetFetchResponse:
             result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
         if self.name is not None:
             result["name"] = from_union([from_str, from_none], self.name)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetFetchResponseState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         if self.visibility is not None:
             result["visibility"] = from_union([lambda x: to_enum(SkillsetFetchResponseVisibility, x), from_none], self.visibility)
@@ -45582,6 +46242,13 @@ class SkillsetUpdateParams:
         result: dict = {}
         result["skillsetId"] = from_str(self.skillset_id)
         return result
+
+
+class SkillsetUpdateRequestState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class SkillsetUpdateRequestVisibility(Enum):
@@ -45610,15 +46277,19 @@ class SkillsetUpdateRequest:
     name: Optional[str]
     """The associated name"""
 
+    state: Optional[SkillsetUpdateRequestState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     visibility: Optional[SkillsetUpdateRequestVisibility]
     """The skillset visibility"""
 
-    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], visibility: Optional[SkillsetUpdateRequestVisibility]) -> None:
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], state: Optional[SkillsetUpdateRequestState], visibility: Optional[SkillsetUpdateRequestVisibility]) -> None:
         self.alias = alias
         self.blueprint_id = blueprint_id
         self.description = description
         self.meta = meta
         self.name = name
+        self.state = state
         self.visibility = visibility
 
     @staticmethod
@@ -45629,8 +46300,9 @@ class SkillsetUpdateRequest:
         description = from_union([from_str, from_none], obj.get("description"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
         name = from_union([from_str, from_none], obj.get("name"))
+        state = from_union([SkillsetUpdateRequestState, from_none], obj.get("state"))
         visibility = from_union([SkillsetUpdateRequestVisibility, from_none], obj.get("visibility"))
-        return SkillsetUpdateRequest(alias, blueprint_id, description, meta, name, visibility)
+        return SkillsetUpdateRequest(alias, blueprint_id, description, meta, name, state, visibility)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45644,6 +46316,8 @@ class SkillsetUpdateRequest:
             result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
         if self.name is not None:
             result["name"] = from_union([from_str, from_none], self.name)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetUpdateRequestState, x), from_none], self.state)
         if self.visibility is not None:
             result["visibility"] = from_union([lambda x: to_enum(SkillsetUpdateRequestVisibility, x), from_none], self.visibility)
         return result
@@ -45666,6 +46340,13 @@ class SkillsetUpdateResponse:
         result: dict = {}
         result["id"] = from_str(self.id)
         return result
+
+
+class SkillsetCreateRequestState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class SkillsetCreateRequestVisibility(Enum):
@@ -45694,15 +46375,19 @@ class SkillsetCreateRequest:
     name: Optional[str]
     """The associated name"""
 
+    state: Optional[SkillsetCreateRequestState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     visibility: Optional[SkillsetCreateRequestVisibility]
     """The skillset visibility"""
 
-    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], visibility: Optional[SkillsetCreateRequestVisibility]) -> None:
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], description: Optional[str], meta: Optional[Dict[str, Any]], name: Optional[str], state: Optional[SkillsetCreateRequestState], visibility: Optional[SkillsetCreateRequestVisibility]) -> None:
         self.alias = alias
         self.blueprint_id = blueprint_id
         self.description = description
         self.meta = meta
         self.name = name
+        self.state = state
         self.visibility = visibility
 
     @staticmethod
@@ -45713,8 +46398,9 @@ class SkillsetCreateRequest:
         description = from_union([from_str, from_none], obj.get("description"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
         name = from_union([from_str, from_none], obj.get("name"))
+        state = from_union([SkillsetCreateRequestState, from_none], obj.get("state"))
         visibility = from_union([SkillsetCreateRequestVisibility, from_none], obj.get("visibility"))
-        return SkillsetCreateRequest(alias, blueprint_id, description, meta, name, visibility)
+        return SkillsetCreateRequest(alias, blueprint_id, description, meta, name, state, visibility)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45728,6 +46414,8 @@ class SkillsetCreateRequest:
             result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
         if self.name is not None:
             result["name"] = from_union([from_str, from_none], self.name)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(SkillsetCreateRequestState, x), from_none], self.state)
         if self.visibility is not None:
             result["visibility"] = from_union([lambda x: to_enum(SkillsetCreateRequestVisibility, x), from_none], self.visibility)
         return result
@@ -45800,6 +46488,13 @@ class SkillsetListParams:
         return result
 
 
+class TentacledState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+
+
 class BraggadociousVisibility(Enum):
     """The skillset visibility"""
 
@@ -45832,13 +46527,16 @@ class SkillsetListResponseItem:
     name: Optional[str]
     """The associated name"""
 
+    state: Optional[TentacledState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
     visibility: Optional[BraggadociousVisibility]
     """The skillset visibility"""
 
-    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], updated_at: float, visibility: Optional[BraggadociousVisibility]) -> None:
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], state: Optional[TentacledState], updated_at: float, visibility: Optional[BraggadociousVisibility]) -> None:
         self.alias = alias
         self.blueprint_id = blueprint_id
         self.created_at = created_at
@@ -45846,6 +46544,7 @@ class SkillsetListResponseItem:
         self.id = id
         self.meta = meta
         self.name = name
+        self.state = state
         self.updated_at = updated_at
         self.visibility = visibility
 
@@ -45859,9 +46558,10 @@ class SkillsetListResponseItem:
         id = from_str(obj.get("id"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
         name = from_union([from_str, from_none], obj.get("name"))
+        state = from_union([TentacledState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
         visibility = from_union([BraggadociousVisibility, from_none], obj.get("visibility"))
-        return SkillsetListResponseItem(alias, blueprint_id, created_at, description, id, meta, name, updated_at, visibility)
+        return SkillsetListResponseItem(alias, blueprint_id, created_at, description, id, meta, name, state, updated_at, visibility)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45877,6 +46577,8 @@ class SkillsetListResponseItem:
             result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
         if self.name is not None:
             result["name"] = from_union([from_str, from_none], self.name)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(TentacledState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         if self.visibility is not None:
             result["visibility"] = from_union([lambda x: to_enum(BraggadociousVisibility, x), from_none], self.visibility)
@@ -45905,6 +46607,13 @@ class SkillsetListResponse:
         result["cursor"] = from_str(self.cursor)
         result["items"] = from_list(lambda x: to_class(SkillsetListResponseItem, x), self.items)
         return result
+
+
+class StickyState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class Visibility1(Enum):
@@ -45939,13 +46648,16 @@ class SkillsetListStreamItemData:
     name: Optional[str]
     """The associated name"""
 
+    state: Optional[StickyState]
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
     visibility: Optional[Visibility1]
     """The skillset visibility"""
 
-    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], updated_at: float, visibility: Optional[Visibility1]) -> None:
+    def __init__(self, alias: Optional[str], blueprint_id: Optional[str], created_at: float, description: Optional[str], id: str, meta: Optional[Dict[str, Any]], name: Optional[str], state: Optional[StickyState], updated_at: float, visibility: Optional[Visibility1]) -> None:
         self.alias = alias
         self.blueprint_id = blueprint_id
         self.created_at = created_at
@@ -45953,6 +46665,7 @@ class SkillsetListStreamItemData:
         self.id = id
         self.meta = meta
         self.name = name
+        self.state = state
         self.updated_at = updated_at
         self.visibility = visibility
 
@@ -45966,9 +46679,10 @@ class SkillsetListStreamItemData:
         id = from_str(obj.get("id"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
         name = from_union([from_str, from_none], obj.get("name"))
+        state = from_union([StickyState, from_none], obj.get("state"))
         updated_at = from_float(obj.get("updatedAt"))
         visibility = from_union([Visibility1, from_none], obj.get("visibility"))
-        return SkillsetListStreamItemData(alias, blueprint_id, created_at, description, id, meta, name, updated_at, visibility)
+        return SkillsetListStreamItemData(alias, blueprint_id, created_at, description, id, meta, name, state, updated_at, visibility)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -45984,6 +46698,8 @@ class SkillsetListStreamItemData:
             result["meta"] = from_union([lambda x: from_dict(lambda x: x, x), from_none], self.meta)
         if self.name is not None:
             result["name"] = from_union([from_str, from_none], self.name)
+        if self.state is not None:
+            result["state"] = from_union([lambda x: to_enum(StickyState, x), from_none], self.state)
         result["updatedAt"] = to_float(self.updated_at)
         if self.visibility is not None:
             result["visibility"] = from_union([lambda x: to_enum(Visibility1, x), from_none], self.visibility)
@@ -48679,6 +49395,9 @@ class TaskUpdateRequest:
     description: Optional[str]
     """The associated description"""
 
+    max_calls: Optional[float]
+    """The maximum number of tool calls across the whole task run (0 or null for unbounded)"""
+
     max_iterations: Optional[float]
     """The maximum number of iterations per task execution"""
 
@@ -48701,10 +49420,11 @@ class TaskUpdateRequest:
     timezone: Optional[str]
     """An optional IANA timezone identifier used when evaluating the task schedule."""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.description = description
+        self.max_calls = max_calls
         self.max_iterations = max_iterations
         self.max_time = max_time
         self.meta = meta
@@ -48719,6 +49439,7 @@ class TaskUpdateRequest:
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         description = from_union([from_str, from_none], obj.get("description"))
+        max_calls = from_union([from_float, from_none], obj.get("maxCalls"))
         max_iterations = from_union([from_float, from_none], obj.get("maxIterations"))
         max_time = from_union([from_float, from_none], obj.get("maxTime"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
@@ -48726,7 +49447,7 @@ class TaskUpdateRequest:
         schedule = from_union([from_str, from_none], obj.get("schedule"))
         session_duration = from_union([from_float, from_none], obj.get("sessionDuration"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
-        return TaskUpdateRequest(bot_id, contact_id, description, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
+        return TaskUpdateRequest(bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -48736,6 +49457,8 @@ class TaskUpdateRequest:
             result["contactId"] = from_union([from_str, from_none], self.contact_id)
         if self.description is not None:
             result["description"] = from_union([from_str, from_none], self.description)
+        if self.max_calls is not None:
+            result["maxCalls"] = from_union([to_float, from_none], self.max_calls)
         if self.max_iterations is not None:
             result["maxIterations"] = from_union([to_float, from_none], self.max_iterations)
         if self.max_time is not None:
@@ -48784,6 +49507,9 @@ class TaskCreateRequest:
     description: Optional[str]
     """The associated description"""
 
+    max_calls: Optional[float]
+    """The maximum number of tool calls across the whole task run (0 or null for unbounded)"""
+
     max_iterations: Optional[float]
     """The maximum number of iterations per task execution"""
 
@@ -48806,10 +49532,11 @@ class TaskCreateRequest:
     timezone: Optional[str]
     """An optional IANA timezone identifier used when evaluating the task schedule."""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.description = description
+        self.max_calls = max_calls
         self.max_iterations = max_iterations
         self.max_time = max_time
         self.meta = meta
@@ -48824,6 +49551,7 @@ class TaskCreateRequest:
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         description = from_union([from_str, from_none], obj.get("description"))
+        max_calls = from_union([from_float, from_none], obj.get("maxCalls"))
         max_iterations = from_union([from_float, from_none], obj.get("maxIterations"))
         max_time = from_union([from_float, from_none], obj.get("maxTime"))
         meta = from_union([lambda x: from_dict(lambda x: x, x), from_none], obj.get("meta"))
@@ -48831,7 +49559,7 @@ class TaskCreateRequest:
         schedule = from_union([from_str, from_none], obj.get("schedule"))
         session_duration = from_union([from_float, from_none], obj.get("sessionDuration"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
-        return TaskCreateRequest(bot_id, contact_id, description, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
+        return TaskCreateRequest(bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -48841,6 +49569,8 @@ class TaskCreateRequest:
             result["contactId"] = from_union([from_str, from_none], self.contact_id)
         if self.description is not None:
             result["description"] = from_union([from_str, from_none], self.description)
+        if self.max_calls is not None:
+            result["maxCalls"] = from_union([to_float, from_none], self.max_calls)
         if self.max_iterations is not None:
             result["maxIterations"] = from_union([to_float, from_none], self.max_iterations)
         if self.max_time is not None:
@@ -50479,6 +51209,13 @@ class SkillsetVisibility(Enum):
     PRIVATE = "private"
     PROTECTED = "protected"
     PUBLIC = "public"
+
+
+class ResourceState(Enum):
+    """The lifecycle state of a resource — toggle it on/off without deleting it"""
+
+    DISABLED = "disabled"
+    ENABLED = "enabled"
 
 
 class FileVisibility(Enum):
@@ -53003,6 +53740,22 @@ def conversation_attachment_upload_response_to_dict(x: ConversationAttachmentUpl
     return to_class(ConversationAttachmentUploadResponse, x)
 
 
+def conversation_channel_subscribe_request_from_dict(s: Any) -> ConversationChannelSubscribeRequest:
+    return ConversationChannelSubscribeRequest.from_dict(s)
+
+
+def conversation_channel_subscribe_request_to_dict(x: ConversationChannelSubscribeRequest) -> Any:
+    return to_class(ConversationChannelSubscribeRequest, x)
+
+
+def conversation_channel_subscribe_stream_item_from_dict(s: Any) -> ConversationChannelSubscribeStreamItem:
+    return ConversationChannelSubscribeStreamItem.from_dict(s)
+
+
+def conversation_channel_subscribe_stream_item_to_dict(x: ConversationChannelSubscribeStreamItem) -> Any:
+    return to_class(ConversationChannelSubscribeStreamItem, x)
+
+
 def conversation_compact_params_from_dict(s: Any) -> ConversationCompactParams:
     return ConversationCompactParams.from_dict(s)
 
@@ -54617,6 +55370,110 @@ def integration_extract_list_stream_item_from_dict(s: Any) -> IntegrationExtract
 
 def integration_extract_list_stream_item_to_dict(x: IntegrationExtractListStreamItem) -> Any:
     return to_class(IntegrationExtractListStreamItem, x)
+
+
+def github_integration_delete_params_from_dict(s: Any) -> GithubIntegrationDeleteParams:
+    return GithubIntegrationDeleteParams.from_dict(s)
+
+
+def github_integration_delete_params_to_dict(x: GithubIntegrationDeleteParams) -> Any:
+    return to_class(GithubIntegrationDeleteParams, x)
+
+
+def github_integration_delete_request_from_dict(s: Any) -> Dict[str, Any]:
+    return from_dict(lambda x: x, s)
+
+
+def github_integration_delete_request_to_dict(x: Dict[str, Any]) -> Any:
+    return from_dict(lambda x: x, x)
+
+
+def github_integration_delete_response_from_dict(s: Any) -> GithubIntegrationDeleteResponse:
+    return GithubIntegrationDeleteResponse.from_dict(s)
+
+
+def github_integration_delete_response_to_dict(x: GithubIntegrationDeleteResponse) -> Any:
+    return to_class(GithubIntegrationDeleteResponse, x)
+
+
+def github_integration_fetch_params_from_dict(s: Any) -> GithubIntegrationFetchParams:
+    return GithubIntegrationFetchParams.from_dict(s)
+
+
+def github_integration_fetch_params_to_dict(x: GithubIntegrationFetchParams) -> Any:
+    return to_class(GithubIntegrationFetchParams, x)
+
+
+def github_integration_fetch_response_from_dict(s: Any) -> GithubIntegrationFetchResponse:
+    return GithubIntegrationFetchResponse.from_dict(s)
+
+
+def github_integration_fetch_response_to_dict(x: GithubIntegrationFetchResponse) -> Any:
+    return to_class(GithubIntegrationFetchResponse, x)
+
+
+def github_integration_setup_params_from_dict(s: Any) -> GithubIntegrationSetupParams:
+    return GithubIntegrationSetupParams.from_dict(s)
+
+
+def github_integration_setup_params_to_dict(x: GithubIntegrationSetupParams) -> Any:
+    return to_class(GithubIntegrationSetupParams, x)
+
+
+def github_integration_update_params_from_dict(s: Any) -> GithubIntegrationUpdateParams:
+    return GithubIntegrationUpdateParams.from_dict(s)
+
+
+def github_integration_update_params_to_dict(x: GithubIntegrationUpdateParams) -> Any:
+    return to_class(GithubIntegrationUpdateParams, x)
+
+
+def github_integration_update_request_from_dict(s: Any) -> GithubIntegrationUpdateRequest:
+    return GithubIntegrationUpdateRequest.from_dict(s)
+
+
+def github_integration_update_request_to_dict(x: GithubIntegrationUpdateRequest) -> Any:
+    return to_class(GithubIntegrationUpdateRequest, x)
+
+
+def github_integration_update_response_from_dict(s: Any) -> GithubIntegrationUpdateResponse:
+    return GithubIntegrationUpdateResponse.from_dict(s)
+
+
+def github_integration_update_response_to_dict(x: GithubIntegrationUpdateResponse) -> Any:
+    return to_class(GithubIntegrationUpdateResponse, x)
+
+
+def github_integration_create_request_from_dict(s: Any) -> GithubIntegrationCreateRequest:
+    return GithubIntegrationCreateRequest.from_dict(s)
+
+
+def github_integration_create_request_to_dict(x: GithubIntegrationCreateRequest) -> Any:
+    return to_class(GithubIntegrationCreateRequest, x)
+
+
+def github_integration_create_response_from_dict(s: Any) -> GithubIntegrationCreateResponse:
+    return GithubIntegrationCreateResponse.from_dict(s)
+
+
+def github_integration_create_response_to_dict(x: GithubIntegrationCreateResponse) -> Any:
+    return to_class(GithubIntegrationCreateResponse, x)
+
+
+def github_integration_list_params_from_dict(s: Any) -> GithubIntegrationListParams:
+    return GithubIntegrationListParams.from_dict(s)
+
+
+def github_integration_list_params_to_dict(x: GithubIntegrationListParams) -> Any:
+    return to_class(GithubIntegrationListParams, x)
+
+
+def github_integration_list_response_from_dict(s: Any) -> GithubIntegrationListResponse:
+    return GithubIntegrationListResponse.from_dict(s)
+
+
+def github_integration_list_response_to_dict(x: GithubIntegrationListResponse) -> Any:
+    return to_class(GithubIntegrationListResponse, x)
 
 
 def googlechat_integration_delete_params_from_dict(s: Any) -> GooglechatIntegrationDeleteParams:
@@ -58993,6 +59850,14 @@ def skillset_visibility_from_dict(s: Any) -> SkillsetVisibility:
 
 def skillset_visibility_to_dict(x: SkillsetVisibility) -> Any:
     return to_enum(SkillsetVisibility, x)
+
+
+def resource_state_from_dict(s: Any) -> ResourceState:
+    return ResourceState(s)
+
+
+def resource_state_to_dict(x: ResourceState) -> Any:
+    return to_enum(ResourceState, x)
 
 
 def file_visibility_from_dict(s: Any) -> FileVisibility:
