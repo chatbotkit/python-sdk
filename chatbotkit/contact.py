@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+import httpx
+
 from . import types
 from ._transport import Client, Response
 
@@ -113,6 +115,36 @@ class ContactSecretClient:
             query=request,
             parse=types.ContactSecretListResponse.from_dict,
             stream_parse=types.ContactSecretListStreamItem.from_dict,
+        )
+
+    def mint(
+        self,
+        contact_id: str,
+        secret_id: str,
+    ) -> Response[types.ContactSecretMintResponse, Any]:
+        """Mint a usable token from a contact's secret (owner-only; oauth/jwt only)."""
+        return self._client.client_fetch(
+            f"/api/v1/contact/{contact_id}/secret/{secret_id}/mint",
+            record={},
+            parse=types.ContactSecretMintResponse.from_dict,
+        )
+
+    async def proxy(
+        self,
+        contact_id: str,
+        secret_id: str,
+        request: types.ContactSecretProxyRequest | Request,
+    ) -> httpx.Response:
+        """Proxy a request through a contact's secret, injected server-side.
+
+        Returns the raw upstream response verbatim; a non-2xx status is returned,
+        not raised.
+        """
+        return await self._client.request(
+            f"/api/v1/contact/{contact_id}/secret/{secret_id}/proxy",
+            method="POST",
+            record=request,
+            raw=True,
         )
 
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+import httpx
+
 from . import types
 from ._transport import Client, Response
 
@@ -59,4 +61,29 @@ class SecretClient:
             f"/api/v1/secret/{secret_id}/delete",
             record=request or {},
             parse=types.SecretDeleteResponse.from_dict,
+        )
+
+    def mint(self, secret_id: str) -> Response[types.SecretMintResponse, Any]:
+        """Mint a usable token from the secret (owner-only; oauth/jwt only)."""
+        return self._client.client_fetch(
+            f"/api/v1/secret/{secret_id}/mint",
+            record={},
+            parse=types.SecretMintResponse.from_dict,
+        )
+
+    async def proxy(
+        self,
+        secret_id: str,
+        request: types.SecretProxyRequest | Request,
+    ) -> httpx.Response:
+        """Proxy a request through the secret, injected server-side.
+
+        Returns the raw upstream response verbatim; a non-2xx status (including
+        409 authorization_required) is returned, not raised.
+        """
+        return await self._client.request(
+            f"/api/v1/secret/{secret_id}/proxy",
+            method="POST",
+            record=request,
+            raw=True,
         )

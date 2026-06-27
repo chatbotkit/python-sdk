@@ -4797,6 +4797,122 @@ class ContactSecretAuthenticateResponse:
         return result
 
 
+class ContactSecretMintParams:
+    contact_id: str
+    """The ID of the contact the secret belongs to"""
+
+    secret_id: str
+    """The ID of the secret to mint"""
+
+    def __init__(self, contact_id: str, secret_id: str) -> None:
+        self.contact_id = contact_id
+        self.secret_id = secret_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ContactSecretMintParams':
+        assert isinstance(obj, dict)
+        contact_id = from_str(obj.get("contactId"))
+        secret_id = from_str(obj.get("secretId"))
+        return ContactSecretMintParams(contact_id, secret_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["contactId"] = from_str(self.contact_id)
+        result["secretId"] = from_str(self.secret_id)
+        return result
+
+
+class ContactSecretMintResponse:
+    expires_at: Optional[float]
+    """Token expiry as a unix timestamp in ms, or null"""
+
+    token: str
+    """The usable token to send to the provider"""
+
+    def __init__(self, expires_at: Optional[float], token: str) -> None:
+        self.expires_at = expires_at
+        self.token = token
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ContactSecretMintResponse':
+        assert isinstance(obj, dict)
+        expires_at = from_union([from_float, from_none], obj.get("expiresAt"))
+        token = from_str(obj.get("token"))
+        return ContactSecretMintResponse(expires_at, token)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.expires_at is not None:
+            result["expiresAt"] = from_union([to_float, from_none], self.expires_at)
+        result["token"] = from_str(self.token)
+        return result
+
+
+class ContactSecretProxyParams:
+    contact_id: str
+    """The ID of the contact the secret belongs to"""
+
+    secret_id: str
+    """The ID of the secret to inject"""
+
+    def __init__(self, contact_id: str, secret_id: str) -> None:
+        self.contact_id = contact_id
+        self.secret_id = secret_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ContactSecretProxyParams':
+        assert isinstance(obj, dict)
+        contact_id = from_str(obj.get("contactId"))
+        secret_id = from_str(obj.get("secretId"))
+        return ContactSecretProxyParams(contact_id, secret_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["contactId"] = from_str(self.contact_id)
+        result["secretId"] = from_str(self.secret_id)
+        return result
+
+
+class ContactSecretProxyRequest:
+    body: Optional[str]
+    """The request body"""
+
+    headers: Optional[Dict[str, str]]
+    """The request headers (may reference the secret)"""
+
+    method: Optional[str]
+    """The HTTP method"""
+
+    url: str
+    """The destination URL"""
+
+    def __init__(self, body: Optional[str], headers: Optional[Dict[str, str]], method: Optional[str], url: str) -> None:
+        self.body = body
+        self.headers = headers
+        self.method = method
+        self.url = url
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'ContactSecretProxyRequest':
+        assert isinstance(obj, dict)
+        body = from_union([from_str, from_none], obj.get("body"))
+        headers = from_union([lambda x: from_dict(from_str, x), from_none], obj.get("headers"))
+        method = from_union([from_str, from_none], obj.get("method"))
+        url = from_str(obj.get("url"))
+        return ContactSecretProxyRequest(body, headers, method, url)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.body is not None:
+            result["body"] = from_union([from_str, from_none], self.body)
+        if self.headers is not None:
+            result["headers"] = from_union([lambda x: from_dict(from_str, x), from_none], self.headers)
+        if self.method is not None:
+            result["method"] = from_union([from_str, from_none], self.method)
+        result["url"] = from_str(self.url)
+        return result
+
+
 class ContactSecretRevokeParams:
     contact_id: str
     """The ID of the contact the secret belongs to"""
@@ -43875,6 +43991,110 @@ class SecretFetchResponse:
         return result
 
 
+class SecretMintParams:
+    secret_id: str
+    """The ID of the secret to mint"""
+
+    def __init__(self, secret_id: str) -> None:
+        self.secret_id = secret_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'SecretMintParams':
+        assert isinstance(obj, dict)
+        secret_id = from_str(obj.get("secretId"))
+        return SecretMintParams(secret_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["secretId"] = from_str(self.secret_id)
+        return result
+
+
+class SecretMintResponse:
+    expires_at: Optional[float]
+    """Token expiry as a unix timestamp in ms, or null"""
+
+    token: str
+    """The usable token to send to the provider"""
+
+    def __init__(self, expires_at: Optional[float], token: str) -> None:
+        self.expires_at = expires_at
+        self.token = token
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'SecretMintResponse':
+        assert isinstance(obj, dict)
+        expires_at = from_union([from_float, from_none], obj.get("expiresAt"))
+        token = from_str(obj.get("token"))
+        return SecretMintResponse(expires_at, token)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.expires_at is not None:
+            result["expiresAt"] = from_union([to_float, from_none], self.expires_at)
+        result["token"] = from_str(self.token)
+        return result
+
+
+class SecretProxyParams:
+    secret_id: str
+    """The ID of the secret to inject"""
+
+    def __init__(self, secret_id: str) -> None:
+        self.secret_id = secret_id
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'SecretProxyParams':
+        assert isinstance(obj, dict)
+        secret_id = from_str(obj.get("secretId"))
+        return SecretProxyParams(secret_id)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["secretId"] = from_str(self.secret_id)
+        return result
+
+
+class SecretProxyRequest:
+    body: Optional[str]
+    """The request body"""
+
+    headers: Optional[Dict[str, str]]
+    """The request headers (may reference the secret)"""
+
+    method: Optional[str]
+    """The HTTP method"""
+
+    url: str
+    """The destination URL"""
+
+    def __init__(self, body: Optional[str], headers: Optional[Dict[str, str]], method: Optional[str], url: str) -> None:
+        self.body = body
+        self.headers = headers
+        self.method = method
+        self.url = url
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'SecretProxyRequest':
+        assert isinstance(obj, dict)
+        body = from_union([from_str, from_none], obj.get("body"))
+        headers = from_union([lambda x: from_dict(from_str, x), from_none], obj.get("headers"))
+        method = from_union([from_str, from_none], obj.get("method"))
+        url = from_str(obj.get("url"))
+        return SecretProxyRequest(body, headers, method, url)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.body is not None:
+            result["body"] = from_union([from_str, from_none], self.body)
+        if self.headers is not None:
+            result["headers"] = from_union([lambda x: from_dict(from_str, x), from_none], self.headers)
+        if self.method is not None:
+            result["method"] = from_union([from_str, from_none], self.method)
+        result["url"] = from_str(self.url)
+        return result
+
+
 class SecretRevokeParams:
     secret_id: str
 
@@ -53476,6 +53696,38 @@ def contact_secret_authenticate_response_to_dict(x: ContactSecretAuthenticateRes
     return to_class(ContactSecretAuthenticateResponse, x)
 
 
+def contact_secret_mint_params_from_dict(s: Any) -> ContactSecretMintParams:
+    return ContactSecretMintParams.from_dict(s)
+
+
+def contact_secret_mint_params_to_dict(x: ContactSecretMintParams) -> Any:
+    return to_class(ContactSecretMintParams, x)
+
+
+def contact_secret_mint_response_from_dict(s: Any) -> ContactSecretMintResponse:
+    return ContactSecretMintResponse.from_dict(s)
+
+
+def contact_secret_mint_response_to_dict(x: ContactSecretMintResponse) -> Any:
+    return to_class(ContactSecretMintResponse, x)
+
+
+def contact_secret_proxy_params_from_dict(s: Any) -> ContactSecretProxyParams:
+    return ContactSecretProxyParams.from_dict(s)
+
+
+def contact_secret_proxy_params_to_dict(x: ContactSecretProxyParams) -> Any:
+    return to_class(ContactSecretProxyParams, x)
+
+
+def contact_secret_proxy_request_from_dict(s: Any) -> ContactSecretProxyRequest:
+    return ContactSecretProxyRequest.from_dict(s)
+
+
+def contact_secret_proxy_request_to_dict(x: ContactSecretProxyRequest) -> Any:
+    return to_class(ContactSecretProxyRequest, x)
+
+
 def contact_secret_revoke_params_from_dict(s: Any) -> ContactSecretRevokeParams:
     return ContactSecretRevokeParams.from_dict(s)
 
@@ -58706,6 +58958,38 @@ def secret_fetch_response_from_dict(s: Any) -> SecretFetchResponse:
 
 def secret_fetch_response_to_dict(x: SecretFetchResponse) -> Any:
     return to_class(SecretFetchResponse, x)
+
+
+def secret_mint_params_from_dict(s: Any) -> SecretMintParams:
+    return SecretMintParams.from_dict(s)
+
+
+def secret_mint_params_to_dict(x: SecretMintParams) -> Any:
+    return to_class(SecretMintParams, x)
+
+
+def secret_mint_response_from_dict(s: Any) -> SecretMintResponse:
+    return SecretMintResponse.from_dict(s)
+
+
+def secret_mint_response_to_dict(x: SecretMintResponse) -> Any:
+    return to_class(SecretMintResponse, x)
+
+
+def secret_proxy_params_from_dict(s: Any) -> SecretProxyParams:
+    return SecretProxyParams.from_dict(s)
+
+
+def secret_proxy_params_to_dict(x: SecretProxyParams) -> Any:
+    return to_class(SecretProxyParams, x)
+
+
+def secret_proxy_request_from_dict(s: Any) -> SecretProxyRequest:
+    return SecretProxyRequest.from_dict(s)
+
+
+def secret_proxy_request_to_dict(x: SecretProxyRequest) -> Any:
+    return to_class(SecretProxyRequest, x)
 
 
 def secret_revoke_params_from_dict(s: Any) -> SecretRevokeParams:
