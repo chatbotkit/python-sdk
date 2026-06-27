@@ -252,6 +252,7 @@ class Client:
         record: Any = None,
         headers: Mapping[str, str] | None = None,
         endpoint: str | None = None,
+        raw: bool = False,
     ) -> httpx.Response:
         request = self._build_request(
             path,
@@ -263,7 +264,11 @@ class Client:
         )
 
         response = await self._http.request(**request)
-        await self.raise_for_status(response)
+
+        # in raw (passthrough) mode the caller wants the response verbatim - do
+        # not raise on a non-2xx status (e.g. the proxy's 409 authorization_required)
+        if not raw:
+            await self.raise_for_status(response)
 
         return response
 

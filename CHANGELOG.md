@@ -4,6 +4,18 @@ All notable changes to the ChatBotKit Python SDK are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-06-27
+
+### Added
+
+- Secret token minting and request proxying. `client.secret.mint(...)` /
+  `client.contact.secret.mint(...)` mint a usable token from a secret
+  (`oauth`/`jwt` secrets only; owner-only) and return `{ token, expiresAt }`.
+  `client.secret.proxy(...)` / `client.contact.secret.proxy(...)` proxy a request
+  through a secret — the credential is injected server-side (it never leaves the
+  platform) and the raw upstream `httpx.Response` is returned verbatim. A non-2xx
+  status (including `409 authorization_required`) is returned, not raised.
+
 ## [0.3.0] - 2026-06-26
 
 ### Added
