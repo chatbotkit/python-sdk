@@ -69,9 +69,15 @@ async def complete(
     client: Any,
     conversation_id: str | None = None,
     tools: Mapping[str, Tool | Mapping[str, Any]] | None = None,
+    abort_signal: asyncio.Event | None = None,
     **request: Any,
 ) -> AsyncIterator[dict[str, Any]]:
-    """Complete one agent iteration and execute requested tools."""
+    """Complete one agent iteration and execute requested tools.
+
+    When ``abort_signal`` is provided and becomes set, the stream stops being
+    consumed at the next event boundary. Any tools already running are still
+    awaited so their tasks do not leak.
+    """
 
     channel_to_tool: dict[str, tuple[str, Tool]] = {}
     normalized_tools = normalize_tools(tools or {})
@@ -108,6 +114,9 @@ async def complete(
     running_tools: list[asyncio.Task[None]] = []
 
     async for event in response.stream():
+        if abort_signal is not None and abort_signal.is_set():
+            break
+
         for queued_event in _drain_tool_events(tool_events):
             yield queued_event
 
@@ -149,11 +158,60 @@ async def execute(
     conversation_id: str | None = None,
     tools: Mapping[str, Tool | Mapping[str, Any]] | None = None,
     max_iterations: int = 100,
+    abort_signal: asyncio.Event | None = None,
     **request: Any,
 ) -> AsyncIterator[dict[str, Any]]:
-    """Execute an agent loop until it exits or reaches the iteration limit."""
+    """Execute an agent loop until it exits or reaches the iteration limit.
+
+    The agent runs until the model calls the built-in ``exit`` tool, the
+    ``max_iterations`` limit is reached, the model finishes without pending
+    tool calls, or ``abort_signal`` is set.
+
+    Cancellation
+    ------------
+    Pass an :class:`asyncio.Event` as ``abort_signal`` to stop the loop from the
+    outside (a timeout, a shutdown hook, a user pressing stop)::
+
+        abort_signal = asyncio.Event()
+
+        stream = execute(client=client, messages=messages, tools=tools,
+                         abort_signal=abort_signal)
+
+        abort_signal.set()  # stop the agent
+
+    Setting it ends the current iteration at the next event boundary and exits
+    with code ``1``. The built-in ``abort`` tool mirrors this: the model can call
+    it to stop gracefully, and ``abort(hard=True)`` cancels the in-flight
+    iteration immediately instead of letting it finish.
+
+    Message injection
+    -----------------
+    In local mode, the ``messages`` list is used directly (not copied), so you
+    can append new messages to it at any point while the agent is running. They
+    are included in the context at the start of the next iteration::
+
+        messages = [{"type": "user", "text": "Perform the task."}]
+
+        stream = execute(client=client, messages=messages, tools=tools)
+
+        # inject a user message or system notification mid-run:
+        messages.append({"type": "user", "text": "Also handle edge case Y."})
+        messages.append({"type": "context", "text": "System: disk usage at 90%."})
+
+    The agent also appends its own ``bot`` responses to the same list as each
+    iteration completes, so ``messages`` reflects the full conversation history
+    and you do not need to accumulate it yourself.
+
+    In remote mode, the conversation history is driven by the server through
+    ``conversation_id``, so there is no local message list to mutate.
+    """
 
     exit_result: dict[str, Any] | None = None
+
+    # Per-iteration abort event a hard abort can set to cancel the in-flight
+    # completion immediately. Recreated each iteration; the abort handler reads
+    # whichever event is current when it fires.
+    internal_abort: asyncio.Event | None = None
 
     async def plan(input: PlanInput) -> dict[str, Any]:
         message = f"Plan created with {len(input.steps)} steps"
@@ -185,6 +243,9 @@ async def execute(
 
         reason = input.reason or "aborted by user request"
         exit_result = {"code": 1, "message": reason}
+
+        if input.hard and internal_abort is not None:
+            internal_abort.set()
 
         return {
             "success": True,
@@ -237,6 +298,10 @@ async def execute(
     iteration = 0
 
     while iteration < max_iterations and exit_result is None:
+        if abort_signal is not None and abort_signal.is_set():
+            exit_result = {"code": 1, "message": "Task execution aborted"}
+            break
+
         iteration += 1
 
         yield {"type": "iteration", "data": {"iteration": iteration}}
@@ -250,27 +315,36 @@ async def execute(
             },
         }
 
-        async for event in complete(
-            client=client,
-            conversation_id=conversation_id,
-            tools=all_tools,
-            **iteration_request,
-        ):
-            if event.get("type") == "message" and isinstance(
-                request.get("messages"), list
+        # Fresh per-iteration abort event, forwarded from the caller's signal so
+        # an external abort mid-iteration also cancels the in-flight completion.
+        internal_abort = asyncio.Event()
+        abort_bridge = _start_abort_bridge(abort_signal, internal_abort)
+
+        try:
+            async for event in complete(
+                client=client,
+                conversation_id=conversation_id,
+                tools=all_tools,
+                abort_signal=internal_abort,
+                **iteration_request,
             ):
-                data = event.get("data")
+                if event.get("type") == "message" and isinstance(
+                    request.get("messages"), list
+                ):
+                    data = event.get("data")
 
-                if isinstance(data, Mapping):
-                    request["messages"].append(dict(data))
+                    if isinstance(data, Mapping):
+                        request["messages"].append(dict(data))
 
-            if event.get("type") == "result":
-                reason = _result_end_reason(event)
+                if event.get("type") == "result":
+                    reason = _result_end_reason(event)
 
-                if reason is not None:
-                    last_end_reason = reason
+                    if reason is not None:
+                        last_end_reason = reason
 
-            yield event
+                yield event
+        finally:
+            await _stop_abort_bridge(abort_bridge)
 
         if exit_result is not None:
             break
@@ -286,6 +360,41 @@ async def execute(
         }
 
     yield {"type": "exit", "data": exit_result}
+
+
+def _start_abort_bridge(
+    source: asyncio.Event | None,
+    target: asyncio.Event,
+) -> asyncio.Task[None] | None:
+    """Forward ``source`` into ``target`` so an external abort cancels the
+    current iteration. Returns the watcher task to be stopped afterwards, or
+    ``None`` when there is nothing to watch."""
+
+    if source is None:
+        return None
+
+    if source.is_set():
+        target.set()
+        return None
+
+    return asyncio.create_task(_forward_event(source, target))
+
+
+async def _forward_event(source: asyncio.Event, target: asyncio.Event) -> None:
+    await source.wait()
+    target.set()
+
+
+async def _stop_abort_bridge(task: asyncio.Task[None] | None) -> None:
+    if task is None:
+        return
+
+    task.cancel()
+
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
 
 
 async def _run_tool(
@@ -400,12 +509,13 @@ def _system_instruction(backstory: Any) -> str:
 
 The goal is to complete the assigned task efficiently and effectively. Follow these guidelines:
 
-1. Plan first with the plan tool.
-2. Track progress with the progress tool.
-3. Use available tools to accomplish each step.
-4. Call exit with code 0 when successful, or a non-zero code if unable to complete.
-5. Call abort if the user asks you to stop, cancel, or abort the work.
-6. Work autonomously and adjust when new user input changes the task.
+1. **Plan First**: Use the 'plan' function to create a clear strategy before starting work
+2. **Track Progress**: Regularly use the 'progress' function to update status and identify issues
+3. **Use Tools**: Leverage available tools to accomplish each step of your plan
+4. **Exit When Done**: Call the 'exit' function with code 0 when successful, or non-zero code if unable to complete
+5. **Abort**: If the user asks you to stop, cancel, or abort, call the 'abort' function immediately. Use hard=true if processes are running that need to be killed right away.
+6. **Be Autonomous**: Work through the task systematically without waiting for additional input
+7. **Be Responsive**: If the user sends a new message while you are working, acknowledge it briefly and adjust your approach if needed. Always prioritize user input over your current plan.
 """.strip()
 
 

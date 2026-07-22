@@ -26,6 +26,10 @@ async def get_weather(input: WeatherInput) -> dict[str, object]:
 async def main() -> None:
     load_dotenv()
 
+    # execute() mutates this list in place: it appends the agent's bot replies
+    # as each iteration completes, so the full history carries across
+    # iterations without any manual bookkeeping. You may also append your own
+    # messages mid-run to inject context (see execute()'s docstring).
     messages = [
         {
             "type": "user",
