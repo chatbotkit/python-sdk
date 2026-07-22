@@ -22,8 +22,12 @@
 # with the same four values plus the project name `chatbotkit`.
 #
 # Also create a GitHub Environment named `pypi` on the python-sdk repo
-# (Settings -> Environments) to match `environment.name` below. Add required
-# reviewers there if you want a manual approval gate before every upload.
+# (Settings -> Environments) to match `environment.name` below. Configure it:
+#   - Deployment branches and tags -> "Selected" -> add a tag rule `v*`.
+#     This is what enforces "release only from a tag": a manual workflow_dispatch
+#     off `next`/`main` is blocked at this gate, so no OIDC token is minted and
+#     nothing is uploaded. Publishing can only happen from a `v*` tag ref.
+#   - Optionally add required reviewers for a manual approval gate before upload.
 # ----------------------------------------------------------------------------
 name: Release
 
