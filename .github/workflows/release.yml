@@ -1,14 +1,30 @@
 # Release workflow for the python-sdk.
 #
 # Triggered by tag-release.yml (workflow_dispatch at the new tag) or by a
-# manually pushed `v*` tag. Builds the sdist/wheel, publishes to PyPI (only if
-# a PYPI_API_TOKEN secret is configured), and creates a GitHub Release whose
-# body is the matching section from CHANGELOG.md with auto-generated commit
-# notes appended.
+# manually pushed `v*` tag. Builds the sdist/wheel, publishes to PyPI via a
+# Trusted Publisher (OIDC - no stored API token), and creates a GitHub Release
+# whose body is the matching section from CHANGELOG.md with auto-generated
+# commit notes appended.
 #
-# To enable PyPI publishing, add a `PYPI_API_TOKEN` secret (a PyPI API token)
-# to this repository. Without it, the build still runs and the GitHub Release is
-# still created; only the upload step is skipped.
+# ----------------------------------------------------------------------------
+# Trusted Publishing setup (do this once on PyPI - no secrets in GitHub):
+#   https://docs.pypi.org/trusted-publishers/
+#
+# On https://pypi.org, add a GitHub Actions trusted publisher to the
+# `chatbotkit` project (Manage -> Publishing) with these exact values:
+#   Owner:            chatbotkit
+#   Repository name:  python-sdk
+#   Workflow name:    release.yml
+#   Environment name: pypi
+#
+# For the very first release (the project does not exist on PyPI yet) use a
+# "pending" publisher instead: https://pypi.org/manage/account/publishing/
+# with the same four values plus the project name `chatbotkit`.
+#
+# Also create a GitHub Environment named `pypi` on the python-sdk repo
+# (Settings -> Environments) to match `environment.name` below. Add required
+# reviewers there if you want a manual approval gate before every upload.
+# ----------------------------------------------------------------------------
 name: Release
 
 on:
@@ -17,12 +33,15 @@ on:
       - 'v*'
   workflow_dispatch:
 
-permissions:
-  contents: write
+# No permissions by default; each job requests only what it needs.
+permissions: {}
 
 jobs:
-  release:
+  build:
+    name: Build distributions
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,27 +60,7 @@ jobs:
           python -m build
           twine check dist/*
 
-      - name: Detect PyPI token
-        id: token
-        env:
-          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          if [ -n "$PYPI_API_TOKEN" ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "PYPI_API_TOKEN not set - skipping PyPI upload." >&2
-          fi
-
-      - name: Publish to PyPI
-        if: steps.token.outputs.present == 'true'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload --non-interactive dist/*
-
       - name: Extract changelog section for this version
-        id: changelog
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           if [ -f CHANGELOG.md ]; then
@@ -74,6 +73,54 @@ jobs:
           if [ ! -s release-notes.md ]; then
             echo "Release v${VERSION}. See the full changelog in CHANGELOG.md." > release-notes.md
           fi
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    # The Trusted Publisher on PyPI is scoped to this environment name.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/chatbotkit
+    # OIDC: mint the short-lived token PyPI exchanges for upload rights.
+    # This job intentionally does nothing else (no checkout of repo code) so the
+    # id-token can never be exfiltrated by build/test steps.
+    permissions:
+      id-token: write
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Create GitHub Release
+    needs: [build, publish-pypi]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
