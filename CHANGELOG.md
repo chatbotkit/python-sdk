@@ -4,6 +4,22 @@ All notable changes to the ChatBotKit Python SDK are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-22
+
+### Added
+
+- Agent cancellation. `agent.execute(...)` and `agent.complete(...)` now accept
+  an `abort_signal` (`asyncio.Event`); setting it stops the loop from the outside
+  (timeout, shutdown, user stop) and exits with code `1` at the next event
+  boundary. The built-in `abort` tool's `hard=True` option now cancels the
+  in-flight iteration immediately instead of being a no-op, bringing the Python
+  agent to parity with the Node and Go SDKs.
+
+### Changed
+
+- The agent system instruction now includes the "Be Responsive" guideline
+  (prioritise new user input mid-run), matching the Node and Go SDKs.
+
 ## [0.4.0] - 2026-06-27
 
 ### Added
@@ -13,8 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`oauth`/`jwt` secrets only; owner-only) and return `{ token, expiresAt }`.
   `client.secret.proxy(...)` / `client.contact.secret.proxy(...)` proxy a request
   through a secret — the credential is injected server-side (it never leaves the
-  platform) and the raw upstream `httpx.Response` is returned verbatim. A non-2xx
-  status (including `409 authorization_required`) is returned, not raised.
+  platform) and the upstream `httpx.Response` is returned as-is, success or error.
+- `AuthorizationRequiredError` (exported from `chatbotkit`; a subclass of
+  `APIError`) carrying the `url` the user must visit to authorize. It is raised
+  when a secret or connection has not been authenticated yet
+  (`409 authorization_required`) — by `mint`, by any normal route, and by `proxy`
+  (which otherwise passes every genuine upstream response through untouched).
+  `APIError` now also carries `status_code` and the parsed `data` body.
 
 ## [0.3.0] - 2026-06-26
 

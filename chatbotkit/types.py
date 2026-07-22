@@ -49420,6 +49420,9 @@ class TaskFetchResponseStatus(Enum):
 class TaskFetchResponse:
     """Instance list properties"""
 
+    blueprint_id: Optional[str]
+    """The blueprint associated with the task"""
+
     bot_id: Optional[str]
     """The bot associated with the task"""
 
@@ -49471,7 +49474,8 @@ class TaskFetchResponse:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[TaskFetchResponseOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[TaskFetchResponseStatus], timezone: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[TaskFetchResponseOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[TaskFetchResponseStatus], timezone: Optional[str], updated_at: float) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.created_at = created_at
@@ -49493,6 +49497,7 @@ class TaskFetchResponse:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskFetchResponse':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
@@ -49510,10 +49515,12 @@ class TaskFetchResponse:
         status = from_union([TaskFetchResponseStatus, from_none], obj.get("status"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
         updated_at = from_float(obj.get("updatedAt"))
-        return TaskFetchResponse(bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
+        return TaskFetchResponse(blueprint_id, bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:
@@ -49604,7 +49611,10 @@ class TaskUpdateParams:
 
 
 class TaskUpdateRequest:
-    """Instance crud properties"""
+    """Blueprint properties"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
 
     bot_id: Optional[str]
     """The bot associated with the task"""
@@ -49640,7 +49650,8 @@ class TaskUpdateRequest:
     timezone: Optional[str]
     """An optional IANA timezone identifier used when evaluating the task schedule."""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.description = description
@@ -49656,6 +49667,7 @@ class TaskUpdateRequest:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskUpdateRequest':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -49667,10 +49679,12 @@ class TaskUpdateRequest:
         schedule = from_union([from_str, from_none], obj.get("schedule"))
         session_duration = from_union([from_float, from_none], obj.get("sessionDuration"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
-        return TaskUpdateRequest(bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
+        return TaskUpdateRequest(blueprint_id, bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:
@@ -49716,7 +49730,10 @@ class TaskUpdateResponse:
 
 
 class TaskCreateRequest:
-    """Instance crud properties"""
+    """Blueprint properties"""
+
+    blueprint_id: Optional[str]
+    """The ID of the blueprint"""
 
     bot_id: Optional[str]
     """The bot associated with the task"""
@@ -49752,7 +49769,8 @@ class TaskCreateRequest:
     timezone: Optional[str]
     """An optional IANA timezone identifier used when evaluating the task schedule."""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], description: Optional[str], max_calls: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], schedule: Optional[str], session_duration: Optional[float], timezone: Optional[str]) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.description = description
@@ -49768,6 +49786,7 @@ class TaskCreateRequest:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskCreateRequest':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         description = from_union([from_str, from_none], obj.get("description"))
@@ -49779,10 +49798,12 @@ class TaskCreateRequest:
         schedule = from_union([from_str, from_none], obj.get("schedule"))
         session_duration = from_union([from_float, from_none], obj.get("sessionDuration"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
-        return TaskCreateRequest(bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
+        return TaskCreateRequest(blueprint_id, bot_id, contact_id, description, max_calls, max_iterations, max_time, meta, name, schedule, session_duration, timezone)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:
@@ -50152,6 +50173,9 @@ class TaskListParamsStatus(Enum):
 
 
 class TaskListParams:
+    blueprint_id: Optional[str]
+    """Filter by associated blueprint"""
+
     bot_id: Optional[str]
     """Filter by associated bot"""
 
@@ -50173,7 +50197,8 @@ class TaskListParams:
     take: Optional[int]
     """The number of items to retrieve"""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], cursor: Optional[str], meta: Optional[Dict[str, str]], order: Optional[TaskListParamsOrder], status: Optional[TaskListParamsStatus], take: Optional[int]) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], cursor: Optional[str], meta: Optional[Dict[str, str]], order: Optional[TaskListParamsOrder], status: Optional[TaskListParamsStatus], take: Optional[int]) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.cursor = cursor
@@ -50185,6 +50210,7 @@ class TaskListParams:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskListParams':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         cursor = from_union([from_str, from_none], obj.get("cursor"))
@@ -50192,10 +50218,12 @@ class TaskListParams:
         order = from_union([TaskListParamsOrder, from_none], obj.get("order"))
         status = from_union([TaskListParamsStatus, from_none], obj.get("status"))
         take = from_union([from_int, from_none], obj.get("take"))
-        return TaskListParams(bot_id, contact_id, cursor, meta, order, status, take)
+        return TaskListParams(blueprint_id, bot_id, contact_id, cursor, meta, order, status, take)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:
@@ -50231,6 +50259,9 @@ class IndigoStatus(Enum):
 
 class TaskListResponseItem:
     """Instance list properties"""
+
+    blueprint_id: Optional[str]
+    """The blueprint associated with the task"""
 
     bot_id: Optional[str]
     """The bot associated with the task"""
@@ -50283,7 +50314,8 @@ class TaskListResponseItem:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[IndigoOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[IndigoStatus], timezone: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[IndigoOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[IndigoStatus], timezone: Optional[str], updated_at: float) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.created_at = created_at
@@ -50305,6 +50337,7 @@ class TaskListResponseItem:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskListResponseItem':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
@@ -50322,10 +50355,12 @@ class TaskListResponseItem:
         status = from_union([IndigoStatus, from_none], obj.get("status"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
         updated_at = from_float(obj.get("updatedAt"))
-        return TaskListResponseItem(bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
+        return TaskListResponseItem(blueprint_id, bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:
@@ -50403,6 +50438,9 @@ class IndecentStatus(Enum):
 class TaskListStreamItemData:
     """Instance list properties"""
 
+    blueprint_id: Optional[str]
+    """The blueprint associated with the task"""
+
     bot_id: Optional[str]
     """The bot associated with the task"""
 
@@ -50454,7 +50492,8 @@ class TaskListStreamItemData:
     updated_at: float
     """The timestamp (ms) when the instance was updated"""
 
-    def __init__(self, bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[IndecentOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[IndecentStatus], timezone: Optional[str], updated_at: float) -> None:
+    def __init__(self, blueprint_id: Optional[str], bot_id: Optional[str], contact_id: Optional[str], created_at: float, description: Optional[str], id: str, last_run_at: Optional[float], max_iterations: Optional[float], max_time: Optional[float], meta: Optional[Dict[str, Any]], name: Optional[str], next_run_at: Optional[float], outcome: Optional[IndecentOutcome], schedule: Optional[str], session_duration: Optional[float], status: Optional[IndecentStatus], timezone: Optional[str], updated_at: float) -> None:
+        self.blueprint_id = blueprint_id
         self.bot_id = bot_id
         self.contact_id = contact_id
         self.created_at = created_at
@@ -50476,6 +50515,7 @@ class TaskListStreamItemData:
     @staticmethod
     def from_dict(obj: Any) -> 'TaskListStreamItemData':
         assert isinstance(obj, dict)
+        blueprint_id = from_union([from_str, from_none], obj.get("blueprintId"))
         bot_id = from_union([from_str, from_none], obj.get("botId"))
         contact_id = from_union([from_str, from_none], obj.get("contactId"))
         created_at = from_float(obj.get("createdAt"))
@@ -50493,10 +50533,12 @@ class TaskListStreamItemData:
         status = from_union([IndecentStatus, from_none], obj.get("status"))
         timezone = from_union([from_str, from_none], obj.get("timezone"))
         updated_at = from_float(obj.get("updatedAt"))
-        return TaskListStreamItemData(bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
+        return TaskListStreamItemData(blueprint_id, bot_id, contact_id, created_at, description, id, last_run_at, max_iterations, max_time, meta, name, next_run_at, outcome, schedule, session_duration, status, timezone, updated_at)
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.blueprint_id is not None:
+            result["blueprintId"] = from_union([from_str, from_none], self.blueprint_id)
         if self.bot_id is not None:
             result["botId"] = from_union([from_str, from_none], self.bot_id)
         if self.contact_id is not None:

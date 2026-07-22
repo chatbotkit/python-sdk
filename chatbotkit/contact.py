@@ -137,14 +137,15 @@ class ContactSecretClient:
     ) -> httpx.Response:
         """Proxy a request through a contact's secret, injected server-side.
 
-        Returns the raw upstream response verbatim; a non-2xx status is returned,
-        not raised.
+        Returns the upstream response as-is (success or error). The one exception
+        is a CBK ``authorization_required`` signal - common here, since the
+        contact may not have authenticated the secret yet - which is raised as an
+        AuthorizationRequiredError carrying the URL the user must visit.
         """
-        return await self._client.request(
+        return await self._client.proxy(
             f"/api/v1/contact/{contact_id}/secret/{secret_id}/proxy",
             method="POST",
             record=request,
-            raw=True,
         )
 
 

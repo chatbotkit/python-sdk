@@ -88,12 +88,66 @@ class APIError(Exception):
         code: str | None = None,
         status_code: int | None = None,
         url: str | None = None,
+        data: Any = None,
     ) -> None:
         super().__init__(message)
         self.message = message
         self.code = code
         self.status_code = status_code
         self.url = url
+        self.data = data
+
+
+class AuthorizationRequiredError(APIError):
+    """Raised when a secret or connection has not been authenticated yet.
+
+    ``url`` is the address the user must visit to authorize.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        url: str | None = None,
+        data: Any = None,
+    ) -> None:
+        super().__init__(
+            message,
+            code="AUTHORIZATION_REQUIRED",
+            status_code=status_code,
+            url=url,
+            data=data,
+        )
+
+
+def _handle_proxy_response(response: httpx.Response) -> httpx.Response:
+    """Surface a CBK control response from a proxied request.
+
+    Successful and non-JSON error responses are returned untouched; a CBK
+    ``authorization_required`` signal is raised as an AuthorizationRequiredError
+    carrying the authorize URL, while a genuine upstream error is returned as-is.
+    """
+    if response.status_code < 400:
+        return response
+
+    if "application/json" not in response.headers.get("content-type", ""):
+        return response
+
+    try:
+        data = response.json()
+    except ValueError:
+        return response
+
+    if isinstance(data, dict) and data.get("error") == "authorization_required":
+        raise AuthorizationRequiredError(
+            data.get("message") or "authorization required",
+            status_code=response.status_code,
+            url=data.get("url"),
+            data=data,
+        )
+
+    return response
 
 
 class Response(Generic[T, U]):
@@ -272,6 +326,34 @@ class Client:
 
         return response
 
+    async def proxy(
+        self,
+        path: str,
+        *,
+        method: str | None = None,
+        query: Any = None,
+        record: Any = None,
+        headers: Mapping[str, str] | None = None,
+        endpoint: str | None = None,
+    ) -> httpx.Response:
+        """Proxy a request and return the upstream response.
+
+        Successful and upstream-error responses pass through untouched; a CBK
+        ``authorization_required`` signal is raised as an
+        AuthorizationRequiredError carrying the URL the user must visit.
+        """
+        response = await self.request(
+            path,
+            method=method,
+            query=query,
+            record=record,
+            headers=headers,
+            endpoint=endpoint,
+            raw=True,
+        )
+
+        return _handle_proxy_response(response)
+
     def stream(
         self,
         path: str,
@@ -371,18 +453,29 @@ class Client:
 
         message = f"HTTP Error: {response.reason_phrase}"
         code = f"ERROR_{response.status_code}"
+        data: Any = None
 
         try:
             data = response.json()
-            message = data.get("message") or message
-            code = data.get("code") or code
+            if isinstance(data, dict):
+                message = data.get("message") or message
+                code = data.get("code") or code
         except ValueError:
             body = await response.aread()
             message = body.decode() or f"HTTP Error: {response.status_code}"
+
+        if isinstance(data, dict) and data.get("error") == "authorization_required":
+            raise AuthorizationRequiredError(
+                message,
+                status_code=response.status_code,
+                url=data.get("url"),
+                data=data,
+            )
 
         raise APIError(
             message,
             code=code,
             status_code=response.status_code,
             url=str(response.url),
+            data=data,
         )

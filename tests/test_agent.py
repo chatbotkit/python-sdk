@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 pydantic = pytest.importorskip("pydantic")
 
-from chatbotkit.agent import Tool, complete, create_skills_feature  # noqa: E402
+from chatbotkit.agent import Tool, complete, create_skills_feature, execute  # noqa: E402
 
 
 class WeatherInput(pydantic.BaseModel):
@@ -101,3 +103,165 @@ async def test_complete_runs_tool_and_publishes_result():
             {"message": {"data": {"location": "San Francisco, CA"}}},
         )
     ]
+
+
+class _FakeChannel:
+    async def publish(self, channel, request):
+        return {"id": channel}
+
+
+def _tool_channels(record) -> dict[str, str]:
+    return {f["name"]: f["result"]["channel"] for f in record["functions"]}
+
+
+@pytest.mark.asyncio
+async def test_execute_external_abort_signal_stops_before_first_call():
+    class FakeClient:
+        def __init__(self):
+            self.channel = _FakeChannel()
+            self.record = None
+            self.calls = 0
+
+        def client_fetch(self, path, **kwargs):
+            self.calls += 1
+            self.record = kwargs["record"]
+            raise AssertionError("client_fetch must not run once aborted")
+
+    client = FakeClient()
+    abort_signal = asyncio.Event()
+    abort_signal.set()
+
+    events = [
+        event
+        async for event in execute(
+            client=client,
+            model="claude-4.5-sonnet",
+            messages=[{"type": "user", "text": "go"}],
+            abort_signal=abort_signal,
+            max_iterations=5,
+        )
+    ]
+
+    assert client.calls == 0
+    assert events[-1] == {
+        "type": "exit",
+        "data": {"code": 1, "message": "Task execution aborted"},
+    }
+
+
+@pytest.mark.asyncio
+async def test_execute_external_abort_mid_stream_cancels_iteration():
+    abort_signal = asyncio.Event()
+    consumed = 0
+
+    class FakeResponse:
+        def __init__(self, client):
+            self.client = client
+
+        async def stream(self):
+            nonlocal consumed
+
+            for index in range(6):
+                if index == 2:
+                    # an external actor (timeout, user) aborts mid-stream
+                    abort_signal.set()
+
+                consumed += 1
+
+                yield {"type": "token", "data": {"token": "x"}}
+
+                await asyncio.sleep(0)
+
+    class FakeClient:
+        def __init__(self):
+            self.channel = _FakeChannel()
+            self.record = None
+            self.calls = 0
+
+        def client_fetch(self, path, **kwargs):
+            self.calls += 1
+            self.record = kwargs["record"]
+
+            return FakeResponse(self)
+
+    client = FakeClient()
+
+    events = [
+        event
+        async for event in execute(
+            client=client,
+            model="claude-4.5-sonnet",
+            messages=[{"type": "user", "text": "go"}],
+            abort_signal=abort_signal,
+        )
+    ]
+
+    # the in-flight stream was cut short rather than draining all six tokens
+    assert consumed < 6
+    # and the loop did not start a second API iteration
+    assert client.calls == 1
+    assert events[-1] == {
+        "type": "exit",
+        "data": {"code": 1, "message": "Task execution aborted"},
+    }
+
+
+@pytest.mark.asyncio
+async def test_execute_hard_abort_tool_cancels_iteration():
+    consumed_after_abort = 0
+
+    class FakeResponse:
+        def __init__(self, client):
+            self.client = client
+
+        async def stream(self):
+            nonlocal consumed_after_abort
+
+            abort_channel = _tool_channels(self.client.record)["abort"]
+
+            # the model calls abort(hard=True)
+            yield {
+                "type": "waitForChannelMessageBegin",
+                "data": {
+                    "channel": abort_channel,
+                    "function": {"args": {"hard": True}},
+                },
+            }
+
+            # give the abort tool task a turn to set the internal signal
+            await asyncio.sleep(0)
+
+            # these should not keep streaming once the hard abort fires
+            for _ in range(5):
+                consumed_after_abort += 1
+
+                yield {"type": "token", "data": {"token": "x"}}
+
+                await asyncio.sleep(0)
+
+    class FakeClient:
+        def __init__(self):
+            self.channel = _FakeChannel()
+            self.record = None
+
+        def client_fetch(self, path, **kwargs):
+            self.record = kwargs["record"]
+
+            return FakeResponse(self)
+
+    client = FakeClient()
+
+    events = [
+        event
+        async for event in execute(
+            client=client,
+            model="claude-4.5-sonnet",
+            messages=[{"type": "user", "text": "go"}],
+        )
+    ]
+
+    assert consumed_after_abort < 5
+    assert events[-1] == {
+        "type": "exit",
+        "data": {"code": 1, "message": "aborted by user request"},
+    }

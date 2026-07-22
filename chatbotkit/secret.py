@@ -78,12 +78,12 @@ class SecretClient:
     ) -> httpx.Response:
         """Proxy a request through the secret, injected server-side.
 
-        Returns the raw upstream response verbatim; a non-2xx status (including
-        409 authorization_required) is returned, not raised.
+        Returns the upstream response as-is (success or error). The one exception
+        is a CBK ``authorization_required`` signal, which is raised as an
+        AuthorizationRequiredError carrying the URL the user must visit.
         """
-        return await self._client.request(
+        return await self._client.proxy(
             f"/api/v1/secret/{secret_id}/proxy",
             method="POST",
             record=request,
-            raw=True,
         )
