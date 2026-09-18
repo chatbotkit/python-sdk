@@ -26,7 +26,7 @@ async def get_weather(input: WeatherInput) -> dict[str, object]:
 async def main() -> None:
     load_dotenv()
 
-    async with ChatBotKit(secret=os.environ["CHATBOTKIT_API_SECRET"]) as cbk:
+    async with ChatBotKit(token=os.environ["CHATBOTKIT_API_TOKEN"]) as cbk:
         conversation = await cbk.conversation.create({"model": "claude-4.5-sonnet"})
 
         async for event in execute(

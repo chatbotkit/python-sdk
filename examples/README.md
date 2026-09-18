@@ -10,17 +10,17 @@ From `sdks/python`, install the SDK in editable mode:
 pip install -e ".[examples,agent]"
 ```
 
-Set your API key before running examples:
+Set your API token before running examples:
 
 ```bash
-export CHATBOTKIT_API_SECRET="your-api-key"
+export CHATBOTKIT_API_TOKEN="your-api-token"
 ```
 
 You can also put the key in a `.env` file. The examples load it with
 `python-dotenv`:
 
 ```bash
-CHATBOTKIT_API_SECRET="your-api-key"
+CHATBOTKIT_API_TOKEN="your-api-token"
 ```
 
 ## Groups

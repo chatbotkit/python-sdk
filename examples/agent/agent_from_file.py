@@ -25,7 +25,7 @@ async def main() -> None:
         }
     ]
 
-    async with ChatBotKit(secret=os.environ["CHATBOTKIT_API_SECRET"]) as cbk:
+    async with ChatBotKit(token=os.environ["CHATBOTKIT_API_TOKEN"]) as cbk:
         async for event in execute(
             client=cbk,
             model=agent.model or "gpt-4o",

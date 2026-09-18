@@ -1,6 +1,5 @@
-[![ChatBotKit](https://img.shields.io/badge/credits-ChatBotKit-blue.svg)](https://chatbotkit.com)
 [![CBK.AI](https://img.shields.io/badge/credits-CBK.AI-blue.svg)](https://cbk.ai)
-[![Email](https://img.shields.io/badge/Email-Support-blue?logo=mail.ru)](mailto:support@chatbotkit.com)
+[![Email](https://img.shields.io/badge/Email-Support-blue?logo=mail.ru)](mailto:support@cbk.ai)
 [![Discord](https://img.shields.io/badge/Discord-Support-blue?logo=discord)](https://go.cbk.ai/discord)
 [![PyPI](https://img.shields.io/pypi/v/chatbotkit.svg)](https://pypi.org/project/chatbotkit/)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/chatbotkit.svg?logo=twitter)](https://twitter.com/chatbotkit)
@@ -38,6 +37,8 @@ keeping AI orchestration on the ChatBotKit platform.
 This means you can focus on building great user experiences while ChatBotKit handles the complexity of the ever-changing AI landscape.
 
 ## Installation
+
+Install the SDK from PyPI with pip:
 
 ```bash
 pip install chatbotkit
@@ -96,7 +97,7 @@ from chatbotkit.types import ConversationCompleteStreamItemType
 
 
 async def main():
-    async with ChatBotKit(secret="your-api-key") as cbk:
+    async with ChatBotKit(token="your-api-token") as cbk:
         completion = cbk.conversation.complete(
             None,
             {
@@ -116,13 +117,13 @@ asyncio.run(main())
 
 ## SDK Client
 
-Create a client with your API key and access resources as attributes:
+Create a client with your API token and access resources as attributes:
 
 ```python
 from chatbotkit import ChatBotKit
 
 cbk = ChatBotKit(
-    secret="your-api-key",
+    token="your-api-token",
     base_url="https://api.chatbotkit.com",  # optional
     run_as_user_id="user-id",               # optional
     timezone="America/New_York",            # optional
@@ -140,7 +141,7 @@ cbk.blueprint        # Blueprint management (cbk.blueprint.resource/bulletin)
 cbk.task             # Task management (cbk.task.execution)
 cbk.team             # Team management
 cbk.space            # Space management (cbk.space.storage)
-cbk.partner          # Partner management (cbk.partner.user.token)
+cbk.user             # User management (cbk.user.token)
 cbk.policy           # Policy management
 cbk.portal           # Portal management
 cbk.usage            # Usage reporting (cbk.usage.series)
@@ -148,7 +149,7 @@ cbk.magic            # Magic AI generation (cbk.magic.prompt)
 cbk.event            # Event log access (cbk.event.log)
 cbk.graphql          # GraphQL operations
 cbk.channel          # Channel publish/subscribe
-cbk.platform         # Platform content (doc, example, manual, model, tutorial, ...)
+cbk.platform         # Platform content (doc, example, manual, model, ...)
 cbk.integration      # Integrations (widget, slack, discord, whatsapp, telegram,
                      #   messenger, instagram, notion, sitemap, support, extract,
                      #   twilio, email, mcp_server, microsoft_teams, google_chat,
@@ -290,7 +291,7 @@ Options can be passed as keyword arguments or via a `ClientOptions` instance.
 ```python
 from chatbotkit import ChatBotKit, ClientOptions
 
-cbk = ChatBotKit(ClientOptions(secret="your-api-key", timezone="UTC"))
+cbk = ChatBotKit(ClientOptions(token="your-api-token", timezone="UTC"))
 ```
 
 ## Error Handling
@@ -325,7 +326,7 @@ bot = await cbk.bot.create(BotCreateRequest.from_dict({
 
 ## Documentation
 
-- **Platform Documentation**: Comprehensive guide to ChatBotKit [here](https://chatbotkit.com/docs).
+- **Platform Documentation**: Comprehensive guide to the platform [here](https://docs.cbk.ai/python-sdk).
 - **Platform Tutorials**: Step-by-step tutorials for ChatBotKit [here](https://chatbotkit.com/tutorials).
 
 ## Contributing
@@ -337,7 +338,7 @@ Encounter a bug or want to contribute? Open an issue or submit a pull request on
 from the latest API specification, run the type sync script from the platform repo:
 
 ```bash
-pnpm --dir sites/main script:sync-types:python
+pnpm --dir platform/platform script:sync-types:python
 ```
 
 Install the development dependencies and run the test suite with:

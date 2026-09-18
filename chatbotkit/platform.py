@@ -13,13 +13,10 @@ class PlatformClient:
         self._client = client
         self.ability = PlatformAbilityClient(client)
         self.action = PlatformActionClient(client)
-        self.doc = PlatformDocClient(client)
         self.example = PlatformExampleClient(client)
-        self.manual = PlatformManualClient(client)
         self.model = PlatformModelClient(client)
         self.report = PlatformReportClient(client)
         self.secret = PlatformSecretClient(client)
-        self.tutorial = PlatformTutorialClient(client)
 
 
 class PlatformAbilityClient:
@@ -70,38 +67,6 @@ class PlatformActionClient:
         )
 
 
-class PlatformDocClient:
-    def __init__(self, client: Client) -> None:
-        self._client = client
-
-    def list(
-        self,
-        request: types.PlatformDocListParams | Request | None = None,
-    ) -> Response[types.PlatformDocListResponse, types.PlatformDocListStreamItem]:
-        return self._client.client_fetch(
-            "/api/v1/platform/doc/list",
-            query=request,
-            parse=types.PlatformDocListResponse.from_dict,
-            stream_parse=types.PlatformDocListStreamItem.from_dict,
-        )
-
-    def search(
-        self,
-        request: types.PlatformDocsSearchRequest | Request,
-    ) -> Response[types.PlatformDocsSearchResponse, Any]:
-        return self._client.client_fetch(
-            "/api/v1/platform/doc/search",
-            record=request,
-            parse=types.PlatformDocsSearchResponse.from_dict,
-        )
-
-    def fetch(self, doc_id: str) -> Response[types.PlatformDocFetchResponse, Any]:
-        return self._client.client_fetch(
-            f"/api/v1/platform/doc/{doc_id}/fetch",
-            parse=types.PlatformDocFetchResponse.from_dict,
-        )
-
-
 class PlatformExampleClient:
     def __init__(self, client: Client) -> None:
         self._client = client
@@ -134,41 +99,6 @@ class PlatformExampleClient:
         return self._client.client_fetch(
             f"/api/v1/platform/example/{example_id}/fetch",
             parse=types.PlatformExampleFetchResponse.from_dict,
-        )
-
-
-class PlatformManualClient:
-    def __init__(self, client: Client) -> None:
-        self._client = client
-
-    def list(
-        self,
-        request: types.PlatformManualListParams | Request | None = None,
-    ) -> Response[
-        types.PlatformManualListResponse,
-        types.PlatformManualListStreamItem,
-    ]:
-        return self._client.client_fetch(
-            "/api/v1/platform/manual/list",
-            query=request,
-            parse=types.PlatformManualListResponse.from_dict,
-            stream_parse=types.PlatformManualListStreamItem.from_dict,
-        )
-
-    def search(
-        self,
-        request: types.PlatformManualsSearchRequest | Request,
-    ) -> Response[types.PlatformManualsSearchResponse, Any]:
-        return self._client.client_fetch(
-            "/api/v1/platform/manual/search",
-            record=request,
-            parse=types.PlatformManualsSearchResponse.from_dict,
-        )
-
-    def fetch(self, manual_id: str) -> Response[types.PlatformManualFetchResponse, Any]:
-        return self._client.client_fetch(
-            f"/api/v1/platform/manual/{manual_id}/fetch",
-            parse=types.PlatformManualFetchResponse.from_dict,
         )
 
 
@@ -236,39 +166,4 @@ class PlatformSecretClient:
             "/api/v1/platform/secret/search",
             record=request,
             parse=types.PlatformSecretsSearchResponse.from_dict,
-        )
-
-
-class PlatformTutorialClient:
-    def __init__(self, client: Client) -> None:
-        self._client = client
-
-    def list(
-        self,
-        request: types.PlatformTutorialListParams | Request | None = None,
-    ) -> Response[
-        types.PlatformTutorialListResponse,
-        types.PlatformTutorialListStreamItem,
-    ]:
-        return self._client.client_fetch(
-            "/api/v1/platform/tutorial/list",
-            query=request,
-            parse=types.PlatformTutorialListResponse.from_dict,
-            stream_parse=types.PlatformTutorialListStreamItem.from_dict,
-        )
-
-    def search(
-        self,
-        request: types.PlatformTutorialsSearchRequest | Request,
-    ) -> Response[types.PlatformTutorialsSearchResponse, Any]:
-        return self._client.client_fetch(
-            "/api/v1/platform/tutorial/search",
-            record=request,
-            parse=types.PlatformTutorialsSearchResponse.from_dict,
-        )
-
-    def fetch(self, tutorial_id: str) -> Response[types.PlatformTutorialFetchResponse, Any]:
-        return self._client.client_fetch(
-            f"/api/v1/platform/tutorial/{tutorial_id}/fetch",
-            parse=types.PlatformTutorialFetchResponse.from_dict,
         )

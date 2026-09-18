@@ -13,7 +13,7 @@ async def main() -> None:
 
     messages: list[dict[str, str]] = []
 
-    async with ChatBotKit(secret=os.environ["CHATBOTKIT_API_SECRET"]) as cbk:
+    async with ChatBotKit(token=os.environ["CHATBOTKIT_API_TOKEN"]) as cbk:
         while True:
             text = input("user: ").strip()
 

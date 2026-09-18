@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "chatbotkit"
-version = "0.5.1"
+version = "0.6.0"
 description = "Async Python SDK for ChatBotKit"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [{ name = "CBK.AI", email = "support@chatbotkit.com" }]
+authors = [{ name = "CBK.AI", email = "support@cbk.ai" }]
 keywords = ["chatbotkit", "ai", "chatbot", "agent", "llm", "conversational-ai"]
-urls = { Homepage = "https://chatbotkit.com", Documentation = "https://chatbotkit.com/docs", Source = "https://github.com/chatbotkit" }
+urls = { Homepage = "https://cbk.ai", Documentation = "https://docs.cbk.ai/python-sdk", Source = "https://github.com/chatbotkit" }
 dependencies = [
   "httpx>=0.27",
   "python-dateutil>=2.8",

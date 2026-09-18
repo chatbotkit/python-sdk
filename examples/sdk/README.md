@@ -8,7 +8,7 @@ Install the example helper dependency:
 pip install -e ".[examples]"
 ```
 
-Set `CHATBOTKIT_API_SECRET` in the environment or in a `.env` file.
+Set `CHATBOTKIT_API_TOKEN` in the environment or in a `.env` file.
 
 ```bash
 python3 examples/sdk/conversation_chat_stream.py
