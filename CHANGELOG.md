@@ -4,6 +4,58 @@ All notable changes to the ChatBotKit Python SDK are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.6.0] - 2026-09-18
+
+### Added
+
+- `token=` is the new name for the API credential, on `ChatBotKit(...)`,
+  `ClientOptions` and `extend(...)`. `secret=` is deprecated and still works;
+  `token` wins when both are set.
+- `cbk.decision.create` asks a decision model typed questions (boolean,
+  choice, score) about a state and returns an answer with probabilities for
+  each. Pass a mapping for choice questions, as the generated `Question` type
+  cannot hold their named options.
+
+### Changed
+
+- **BREAKING:** skillset ability link fields renamed. On create/update/fetch/
+  list/export, `secretId` / `fileId` / `botId` / `spaceId` are now
+  `linkedSecretId` / `linkedFileId` / `linkedBotId` / `linkedSpaceId`. Inline
+  conversation `extensions.skillsets[].abilities[]` entries use
+  `linkedSecretId` (and the new `linkedSpaceId`). GraphQL `Ability` relations
+  `secret` / `file` / `bot` / `space` are now `linkedSecret` / `linkedFile` /
+  `linkedBot` / `linkedSpace`. There are no compatibility aliases; upgrade
+  together with the platform deploy.
+- Regenerated types also pick up unrelated API changes since the previous
+  regeneration (2026-08-19), grouped by resource:
+  - **BREAKING:** Dataset: `store` removed from `DatasetCreateRequest`,
+    `DatasetFetchResponse`, `DatasetListResponseItem` and
+    `DatasetListStreamItemData` (the platform now has a single vector store;
+    the REST API accepts and ignores `store`).
+  - Conversation: `expiresAt` (epoch ms, auto-delete) added to
+    `ConversationUpdateRequest`, `ConversationFetchResponse`,
+    `ConversationListResponseItem` and `ConversationListStreamItemData`.
+  - Memory: `expiresAt` added to `MemoryCreateRequest`, `MemoryUpdateRequest`,
+    `MemoryFetchResponse`, `MemoryListResponseItem` and
+    `MemoryListStreamItemData`.
+  - Task: `expiresAt` added to `TaskCreateRequest`, `TaskUpdateRequest`,
+    `TaskFetchResponse`, `TaskListResponseItem` and `TaskListStreamItemData`;
+    `resumeAt` (when a paused run resumes, null while running) added to
+    `TaskExecutionListResponseItem` and `TaskExecutionListStreamItemData`.
+  - Policy: `state` (`enabled` | `disabled`) added to `PolicyCreateRequest`,
+    `PolicyUpdateRequest`, `PolicyFetchResponse`, `PolicyListResponseItem` and
+    `PolicyListStreamItemData`.
+  - WhatsApp integration: `appSecret` (Meta app secret for webhook signature
+    validation, masked as `********` on read) added to
+    `IntegrationWhatsAppCreateRequest`, `IntegrationWhatsAppUpdateRequest`,
+    `IntegrationWhatsAppFetchResponse`, `IntegrationWhatsAppListResponseItem`
+    and `IntegrationWhatsAppListStreamItemData`; `idempotencyKey` added to
+    `WhatsappInitiateRequest`.
+  - GitHub integration: `allowFrom` (allowed senders) added to
+    `GithubIntegrationCreateRequest`.
+
 ## [0.5.1] - 2026-07-22
 
 ### Changed

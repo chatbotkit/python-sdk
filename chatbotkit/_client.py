@@ -9,13 +9,14 @@ from .channel import ChannelClient
 from .contact import ContactClient
 from .conversation import ConversationClient
 from .dataset import DatasetClient
+from .decision import DecisionClient
 from .event import EventClient
 from .file import FileClient
 from .graphql import GraphqlClient
 from .integration import IntegrationClient
 from .magic import MagicClient
 from .memory import MemoryClient
-from .partner import PartnerClient
+from .user import UserClient
 from .platform import PlatformClient
 from .policy import PolicyClient
 from .portal import PortalClient
@@ -34,6 +35,7 @@ class ChatBotKit(Client):
         self.bot = BotClient(self)
         self.conversation = ConversationClient(self)
         self.dataset = DatasetClient(self)
+        self.decision = DecisionClient(self)
         self.skillset = SkillsetClient(self)
         self.file = FileClient(self)
         self.contact = ContactClient(self)
@@ -43,7 +45,7 @@ class ChatBotKit(Client):
         self.task = TaskClient(self)
         self.team = TeamClient(self)
         self.space = SpaceClient(self)
-        self.partner = PartnerClient(self)
+        self.user = UserClient(self)
         self.policy = PolicyClient(self)
         self.portal = PortalClient(self)
         self.usage = UsageClient(self)

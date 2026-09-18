@@ -79,6 +79,10 @@ class ClientOptions:
     headers: Mapping[str, str] | None = None
     timeout: float | None = None
     transport: httpx.AsyncBaseTransport | None = None
+    # @note `token` is the name to use; `secret` is its deprecated former name
+    # and is ignored when `token` is set. It stays last so that positional
+    # arguments keep their meaning.
+    token: str | None = None
 
 
 class APIError(Exception):
@@ -254,6 +258,11 @@ class Client:
         )
 
     def extend(self, **kwargs: Any) -> Client:
+        # @note the deprecated `secret` is folded into `token`, otherwise the
+        # current token would win over a new credential passed as `secret`
+        if "secret" in kwargs and "token" not in kwargs:
+            kwargs = {**kwargs, "token": kwargs["secret"]}
+
         return type(self)(replace(self.options, **kwargs))
 
     async def __aenter__(self) -> Client:
@@ -431,8 +440,10 @@ class Client:
         if has_body:
             result["content-type"] = "application/json"
 
-        if self.options.secret:
-            result["authorization"] = f"Bearer {self.options.secret}"
+        token = self.options.token or self.options.secret
+
+        if token:
+            result["authorization"] = f"Bearer {token}"
 
         if self.options.run_as_user_id:
             result["x-runas-user-id"] = self.options.run_as_user_id

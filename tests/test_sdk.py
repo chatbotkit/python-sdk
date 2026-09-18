@@ -10,7 +10,7 @@ from chatbotkit import APIError, ChatBotKit, ClientOptions
 
 def make_client(handler, **options):
     transport = httpx.MockTransport(handler)
-    return ChatBotKit(secret="cbk_test", transport=transport, **options)
+    return ChatBotKit(token="cbk_test", transport=transport, **options)
 
 
 @pytest.mark.asyncio
@@ -168,4 +168,139 @@ async def test_nested_resource_routing():
 
 def test_options_and_kwargs_are_mutually_exclusive():
     with pytest.raises(TypeError):
-        ChatBotKit(ClientOptions(secret="a"), secret="b")
+        ChatBotKit(ClientOptions(token="a"), secret="b")
+
+
+@pytest.mark.asyncio
+async def test_decision_create_sends_typed_questions_and_parses_answers():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["url"] = str(request.url)
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "answers": {
+                    "urgent": {"type": "boolean", "probability": 0.97},
+                    "topic": {
+                        "type": "choice",
+                        "choice": "billing",
+                        "probabilities": {"billing": 0.9, "technical": 0.1},
+                    },
+                },
+                "usage": {"model": "jev", "inputTokens": 120, "outputTokens": 8},
+            },
+        )
+
+    request = {
+        "state": [{"role": "user", "content": "I was charged twice"}],
+        "questions": {
+            "urgent": {"type": "boolean", "instructions": "Is this urgent?"},
+            "topic": {
+                "type": "choice",
+                "instructions": "What is the topic?",
+                "criteria": {"billing": "payments", "technical": None},
+            },
+        },
+    }
+
+    async with make_client(handler) as cbk:
+        decision = await cbk.decision.create(request)
+
+    assert captured["url"] == "https://api.chatbotkit.com/v1/decision/create"
+    assert captured["body"] == request
+
+    assert decision.answers["urgent"].probability == 0.97
+    assert decision.answers["topic"].choice == "billing"
+    assert decision.answers["topic"].probabilities == {"billing": 0.9, "technical": 0.1}
+    assert decision.usage.input_tokens == 120
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "base_url, expected",
+    [
+        ("http://localhost:3000", "http://localhost:3000/api/v1/bot/bot_1/fetch"),
+        ("http://127.0.0.1:4300/", "http://127.0.0.1:4300/api/v1/bot/bot_1/fetch"),
+        ("https://corp.example/cbk", "https://corp.example/cbk/api/v1/bot/bot_1/fetch"),
+        ("https://corp.example/cbk/", "https://corp.example/cbk/api/v1/bot/bot_1/fetch"),
+    ],
+)
+async def test_base_url_supports_plain_http_and_path_prefixes(base_url, expected):
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["url"] = str(request.url)
+        return httpx.Response(200, json={})
+
+    async with make_client(handler, base_url=base_url) as cbk:
+        await cbk.client_fetch("/api/v1/bot/bot_1/fetch", parse=lambda d: d)
+
+    # the /api prefix is only stripped for api.chatbotkit.com
+    assert captured["url"] == expected
+
+
+def _auth_recorder():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["auth"] = request.headers.get("authorization")
+        return httpx.Response(200, json={})
+
+    return captured, handler
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "credentials, expected",
+    [
+        ({"token": "tok"}, "Bearer tok"),
+        ({"secret": "sec"}, "Bearer sec"),
+        ({"token": "tok", "secret": "sec"}, "Bearer tok"),
+        ({}, None),
+    ],
+)
+async def test_token_option_and_its_deprecated_secret_alias(credentials, expected):
+    captured, handler = _auth_recorder()
+
+    async with ChatBotKit(
+        transport=httpx.MockTransport(handler), **credentials
+    ) as cbk:
+        await cbk.client_fetch("/api/v1/bot/list", parse=lambda d: d)
+
+    assert captured["auth"] == expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "initial, extension, expected",
+    [
+        ({"token": "t1"}, {"token": "t2"}, "Bearer t2"),
+        ({"token": "t1"}, {"secret": "s2"}, "Bearer s2"),
+        ({"secret": "s1"}, {"token": "t2"}, "Bearer t2"),
+        ({"secret": "s1"}, {"timezone": "UTC"}, "Bearer s1"),
+    ],
+)
+async def test_extend_lets_a_new_credential_win_under_either_name(
+    initial, extension, expected
+):
+    captured, handler = _auth_recorder()
+
+    async with ChatBotKit(
+        transport=httpx.MockTransport(handler), **initial
+    ) as cbk:
+        await cbk.extend(**extension).client_fetch(
+            "/api/v1/bot/list", parse=lambda d: d
+        )
+
+    assert captured["auth"] == expected
+
+
+def test_client_options_keep_their_positional_order():
+    options = ClientOptions("sec", "http://localhost:3000")
+
+    assert options.secret == "sec"
+    assert options.base_url == "http://localhost:3000"
+    assert options.token is None
+

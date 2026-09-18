@@ -5,10 +5,10 @@ Install the optional agent dependencies before running these examples:
 ```bash
 cd sdks/python
 pip install -e ".[examples,agent]"
-export CHATBOTKIT_API_SECRET="your-api-key"
+export CHATBOTKIT_API_TOKEN="your-api-token"
 ```
 
-You can also put `CHATBOTKIT_API_SECRET="your-api-key"` in a `.env` file.
+You can also put `CHATBOTKIT_API_TOKEN="your-api-token"` in a `.env` file.
 
 Run an example:
 
