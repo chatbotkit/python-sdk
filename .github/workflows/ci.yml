@@ -13,13 +13,12 @@ on:
     paths-ignore:
       - '**.md'
       - 'LICENSE'
+  # @note no paths-ignore on pull requests: a docs-only release PR must still
+  # report the checks that the ship flow (and the main ruleset) wait for
   pull_request:
     branches:
       - main
       - next
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
 
 permissions:
   contents: read
